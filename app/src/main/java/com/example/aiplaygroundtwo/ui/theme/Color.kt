@@ -2,10 +2,20 @@ package com.example.aiplaygroundtwo.ui.theme
 
 import androidx.compose.ui.graphics.Color
 
-val Purple80 = Color(0xFFD0BCFF)
-val PurpleGrey80 = Color(0xFFCCC2DC)
-val Pink80 = Color(0xFFEFB8C8)
+// Dark shell palette aligned with agent-control-flow mock.
+val AgentBackground = Color(0xFF121218)
+val AgentSurface = Color(0xFF1C1C24)
+val AgentSurfaceVariant = Color(0xFF262630)
+val AgentPurple = Color(0xFF9B7BFF)
+val AgentPurpleDark = Color(0xFF7C5FD4)
+val AgentOnSurface = Color(0xFFE8E8EC)
+val AgentOnSurfaceMuted = Color(0xFFB0B0BA)
 
-val Purple40 = Color(0xFF6650a4)
-val PurpleGrey40 = Color(0xFF625b71)
-val Pink40 = Color(0xFF7D5260)
+val AgentRed = Color(0xFFE57373)
+val AgentRedContainer = Color(0xFF3D2024)
+val AgentBlue = Color(0xFF64B5F6)
+val AgentBlueContainer = Color(0xFF1E2A3D)
+val AgentGreen = Color(0xFF81C784)
+val AgentGreenContainer = Color(0xFF1E3324)
+val AgentAmber = Color(0xFFFFB74D)
+val AgentAmberContainer = Color(0xFF3D3020)
