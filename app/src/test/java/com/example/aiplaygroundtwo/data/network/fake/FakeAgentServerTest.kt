@@ -80,6 +80,19 @@ class FakeAgentServerTest {
     }
 
     @Test
+    fun continue_rejectsInvalidOption() {
+        val result = server.resolve(
+            ReviewResolutionDto(
+                requestId = "request-test-input",
+                action = "CONTINUE",
+                selectedOption = "Not a real option",
+            ),
+        )
+        assertTrue(result is FakeAgentServer.ResolveResult.HttpError)
+        assertEquals(400, (result as FakeAgentServer.ResolveResult.HttpError).code)
+    }
+
+    @Test
     fun blockedDerivation_jobBlockedIffPendingRequestsRemain() {
         val initial = server.buildSnapshot()
         assertEquals("BLOCKED", initial.jobs.first { it.id == "job-1" }.status)

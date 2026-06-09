@@ -44,6 +44,9 @@ class FakeAgentServer {
           if (resolution.selectedOption.isNullOrBlank()) {
             return ResolveResult.HttpError(400, "Selected option is required")
           }
+          if (request.options?.contains(resolution.selectedOption) != true) {
+            return ResolveResult.HttpError(400, "Selected option is invalid")
+          }
           applyNeedsInputContinued(request, resolution.selectedOption, resolution.feedback)
         }
         "REJECT" -> applyNeedsInputRejected(request, resolution.feedback)
@@ -98,9 +101,6 @@ class FakeAgentServer {
     selectedOption: String,
     feedback: String?,
   ) {
-    if (request.options?.contains(selectedOption) != true) {
-      throw IllegalStateException("Selected option must be one of the provided options")
-    }
     updateRequest(
       request.copy(
         status = "INPUT_SELECTED",
