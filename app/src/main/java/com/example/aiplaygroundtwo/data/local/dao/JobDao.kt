@@ -20,4 +20,7 @@ interface JobDao {
 
     @Query("DELETE FROM jobs")
     suspend fun deleteAll()
+
+    @Query("SELECT COUNT(*) FROM jobs")
+    suspend fun count(): Int
 }
