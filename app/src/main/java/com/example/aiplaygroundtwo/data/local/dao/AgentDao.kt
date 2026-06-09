@@ -9,6 +9,9 @@ import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface AgentDao {
+    @Query("SELECT * FROM agents ORDER BY name ASC")
+    fun observeAll(): Flow<List<AgentEntity>>
+
     @Query("SELECT * FROM agents WHERE jobId = :jobId ORDER BY name ASC")
     fun observeForJob(jobId: String): Flow<List<AgentEntity>>
 
