@@ -6,6 +6,7 @@ import com.example.aiplaygroundtwo.data.mapper.SnapshotEntities
 import com.example.aiplaygroundtwo.data.mapper.toDto
 import com.example.aiplaygroundtwo.data.mapper.toEntities
 import com.example.aiplaygroundtwo.data.mapper.toDomain
+import com.example.aiplaygroundtwo.data.mapper.deriveJobStatus
 import com.example.aiplaygroundtwo.data.mapper.toJobDetail
 import com.example.aiplaygroundtwo.data.mapper.toJobSummary
 import com.example.aiplaygroundtwo.data.mapper.toRequestsCenter
@@ -44,6 +45,7 @@ class DefaultAgentRepository(
                 agentCount = jobAgents.size,
                 pendingApprovalCount = jobPending.count { it.type == "APPROVAL" },
                 pendingNeedsInputCount = jobPending.count { it.type == "NEEDS_INPUT" },
+                derivedStatus = deriveJobStatus(job.status, jobPending.isNotEmpty()),
             )
         }
     }
@@ -58,6 +60,7 @@ class DefaultAgentRepository(
             agents = agents.map { it.toDomain() },
             pendingRequests = pending.map { it.toDomain() },
             activityEvents = events.map { it.toDomain() },
+            derivedStatus = deriveJobStatus(job.status, pending.isNotEmpty()),
         )
     }
 
@@ -106,6 +109,9 @@ class DefaultAgentRepository(
 
     private suspend fun replaceSnapshot(entities: SnapshotEntities) {
         database.withTransaction {
+            activityEventDao.deleteAll()
+            reviewRequestDao.deleteAll()
+            agentDao.deleteAll()
             jobDao.deleteAll()
             jobDao.upsertAll(entities.jobs)
             agentDao.upsertAll(entities.agents)

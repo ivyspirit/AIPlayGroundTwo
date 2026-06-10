@@ -17,15 +17,19 @@ import com.example.aiplaygroundtwo.domain.model.RequestsCenter
 import com.example.aiplaygroundtwo.domain.model.ReviewRequest
 import com.example.aiplaygroundtwo.domain.model.RiskLevel
 
+fun deriveJobStatus(entityStatus: String, hasPendingRequests: Boolean): JobStatus =
+    if (hasPendingRequests) JobStatus.Blocked else entityStatus.toJobStatus()
+
 fun JobEntity.toJobSummary(
     agentCount: Int,
     pendingApprovalCount: Int,
     pendingNeedsInputCount: Int,
+    derivedStatus: JobStatus = status.toJobStatus(),
 ): JobSummary = JobSummary(
     id = id,
     title = title,
     repoName = repoName,
-    status = status.toJobStatus(),
+    status = derivedStatus,
     currentStep = currentStep,
     totalSteps = totalSteps,
     agentCount = agentCount,
@@ -37,11 +41,12 @@ fun JobEntity.toJobDetail(
     agents: List<Agent>,
     pendingRequests: List<ReviewRequest>,
     activityEvents: List<ActivityEvent>,
+    derivedStatus: JobStatus = status.toJobStatus(),
 ): JobDetail = JobDetail(
     id = id,
     title = title,
     repoName = repoName,
-    status = status.toJobStatus(),
+    status = derivedStatus,
     currentStep = currentStep,
     totalSteps = totalSteps,
     startedAtEpochMs = startedAtEpochMs,

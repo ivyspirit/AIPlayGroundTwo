@@ -16,7 +16,7 @@ class RequestsCenterViewModel(
         .map { center -> center.toUiState() }
         .stateIn(
             scope = viewModelScope,
-            started = SharingStarted.WhileSubscribed(5_000),
+            started = SharingStarted.Eagerly,
             initialValue = RequestsCenterUiState.Loading,
         )
 
