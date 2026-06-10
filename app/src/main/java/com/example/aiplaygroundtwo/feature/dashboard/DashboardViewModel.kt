@@ -9,8 +9,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
-import kotlinx.coroutines.flow.onCompletion
-import kotlinx.coroutines.flow.onStart
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -21,12 +20,14 @@ class DashboardViewModel(
 ) : ViewModel() {
     private val isRefreshing = MutableStateFlow(false)
     private val refreshError = MutableStateFlow<String?>(null)
+    private val snackbarMessage = MutableStateFlow<String?>(null)
 
     val uiState: StateFlow<DashboardUiState> = combine(
         repository.observeJobs(),
         isRefreshing,
         refreshError,
-    ) { jobs, refreshing, error ->
+        snackbarMessage,
+    ) { jobs, refreshing, error, snackbar ->
         val pendingRequestCount = jobs.sumOf { job ->
             job.pendingApprovalCount + job.pendingNeedsInputCount
         }
@@ -39,17 +40,18 @@ class DashboardViewModel(
                 jobs = jobs,
                 pendingRequestCount = pendingRequestCount,
                 isRefreshing = refreshing,
+                snackbarMessage = snackbar,
             )
         }
     }.stateIn(
         scope = viewModelScope,
-        started = SharingStarted.WhileSubscribed(1_000),
+        started = SharingStarted.WhileSubscribed(5_000),
         initialValue = DashboardUiState.Loading,
     )
 
-//    init {
-//        refresh()
-//    }
+    init {
+        refresh()
+    }
 
     fun refresh() {
         viewModelScope.launch {
@@ -57,14 +59,34 @@ class DashboardViewModel(
                 isRefreshing.value = true
                 refreshError.value = null
                 when (val result = repository.refresh()) {
-                    is NetworkResult.Success -> refreshError.value = null
-                    is NetworkResult.HttpError -> refreshError.value = result.message
+                    is NetworkResult.Success -> {
+                        refreshError.value = null
+                        snackbarMessage.value = null
+                    }
+                    is NetworkResult.HttpError -> handleRefreshFailure(result.message)
                     is NetworkResult.NetworkError -> {
-                        refreshError.value = result.cause.message ?: "Network error"
+                        handleRefreshFailure(
+                            result.cause.message ?: "Network error",
+                        )
                     }
                 }
                 isRefreshing.value = false
             }
+        }
+    }
+
+    fun dismissSnackbar() {
+        snackbarMessage.value = null
+    }
+
+    private suspend fun handleRefreshFailure(message: String) {
+        val hasCachedJobs = repository.observeJobs().first().isNotEmpty()
+        if (hasCachedJobs) {
+            snackbarMessage.value = message
+            refreshError.value = null
+        } else {
+            refreshError.value = message
+            snackbarMessage.value = null
         }
     }
 }

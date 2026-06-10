@@ -21,6 +21,7 @@ class FakeAgentRepository : AgentRepository {
     var refreshResult: NetworkResult<Unit> = NetworkResult.Success(Unit)
     var submitResult: NetworkResult<Unit> = NetworkResult.Success(Unit)
     var lastSubmittedResolution: ReviewResolution? = null
+    var refreshHook: (suspend () -> Unit)? = null
 
     fun setJobs(value: List<JobSummary>) {
         jobs.value = value
@@ -48,7 +49,10 @@ class FakeAgentRepository : AgentRepository {
     override fun observeRequestDetail(requestId: String): Flow<ReviewRequest?> =
         requestDetails.map { it[requestId] }
 
-    override suspend fun refresh(): NetworkResult<Unit> = refreshResult
+    override suspend fun refresh(): NetworkResult<Unit> {
+        refreshHook?.invoke()
+        return refreshResult
+    }
 
     override suspend fun submitReviewResolution(
         resolution: ReviewResolution,

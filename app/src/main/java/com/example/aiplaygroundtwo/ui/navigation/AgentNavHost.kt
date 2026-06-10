@@ -10,6 +10,7 @@ import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
+import com.example.aiplaygroundtwo.data.network.fake.FakeAgentNetworkApi
 import com.example.aiplaygroundtwo.data.repository.AgentRepository
 import com.example.aiplaygroundtwo.di.DispatcherProvider
 import com.example.aiplaygroundtwo.feature.dashboard.DashboardScreen
@@ -32,6 +33,7 @@ fun AgentNavHost(
     navController: NavHostController,
     repository: AgentRepository,
     dispatchers: DispatcherProvider,
+    fakeNetworkApi: FakeAgentNetworkApi? = null,
     modifier: Modifier = Modifier,
 ) {
     NavHost(
@@ -56,6 +58,10 @@ fun AgentNavHost(
                 },
                 onRefresh = viewModel::refresh,
                 onRetry = viewModel::refresh,
+                onDismissSnackbar = viewModel::dismissSnackbar,
+                onArmFailureMode = fakeNetworkApi?.let { api ->
+                    { mode -> api.failureMode = mode }
+                },
                 modifier = Modifier.fillMaxSize(),
             )
         }

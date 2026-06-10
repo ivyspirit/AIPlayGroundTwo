@@ -19,6 +19,7 @@ class MainActivity : ComponentActivity() {
                 AgentApp(
                     repository = appContainer.repository,
                     dispatchers = appContainer.dispatchers,
+                    fakeNetworkApi = appContainer.fakeNetworkApi,
                     modifier = Modifier.fillMaxSize(),
                 )
             }

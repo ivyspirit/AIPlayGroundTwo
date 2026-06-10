@@ -80,6 +80,28 @@ class DashboardViewModelTest {
     }
 
     @Test
+    fun refreshFailureWithCachedJobs_keepsContentAndShowsSnackbar() = runTest {
+        val repository = FakeAgentRepository()
+        repository.setJobs(listOf(blockedJob, runningJob))
+        repository.refreshResult = NetworkResult.NetworkError(
+            IllegalStateException("Simulated network failure"),
+        )
+        val viewModel = DashboardViewModel(
+            repository = repository,
+            dispatchers = TestDispatcherProvider(mainDispatcherRule.testDispatcher),
+        )
+        backgroundScope.launch { viewModel.uiState.collect { } }
+        advanceUntilIdle()
+
+        viewModel.refresh()
+        advanceUntilIdle()
+
+        val state = viewModel.uiState.value as DashboardUiState.Content
+        assertEquals(2, state.jobs.size)
+        assertEquals("Simulated network failure", state.snackbarMessage)
+    }
+
+    @Test
     fun content_includesPendingCountsAndBreakdown() = runTest {
         val repository = FakeAgentRepository()
         repository.setJobs(listOf(blockedJob, runningJob))

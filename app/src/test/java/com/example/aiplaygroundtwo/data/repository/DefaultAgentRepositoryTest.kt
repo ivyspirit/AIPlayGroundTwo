@@ -2,6 +2,7 @@ package com.example.aiplaygroundtwo.data.repository
 
 import androidx.room.Room
 import com.example.aiplaygroundtwo.data.local.AgentDatabase
+import com.example.aiplaygroundtwo.data.network.NetworkResult
 import com.example.aiplaygroundtwo.data.network.fake.FakeAgentNetworkApi
 import com.example.aiplaygroundtwo.domain.model.JobStatus
 import com.example.aiplaygroundtwo.domain.model.RequestStatus
@@ -100,6 +101,18 @@ class DefaultAgentRepositoryTest {
 
         assertTrue(pendingAfter.none { it.id == "request-coder-approval" })
         assertTrue(history.any { it.id == "request-coder-approval" })
+    }
+
+    @Test
+    fun refreshFailure_withCachedData_leavesRoomUnchanged() = runTest {
+        repository.refresh()
+        val jobsBefore = repository.observeJobs().first()
+        networkApi.failureMode = FakeAgentNetworkApi.FailureMode.SERVER_500
+        val result = repository.refresh()
+        val jobsAfter = repository.observeJobs().first()
+
+        assertTrue(result is NetworkResult.HttpError)
+        assertEquals(jobsBefore, jobsAfter)
     }
 
     @Test

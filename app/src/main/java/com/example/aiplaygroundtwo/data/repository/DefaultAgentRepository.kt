@@ -39,7 +39,6 @@ class DefaultAgentRepository(
     ) { jobs, agents, pending ->
 
         jobs.map { job ->
-//            "${pending.joinToString { "${it.title }}: ${it.status}"}"
             val jobPending = pending.filter { it.jobId == job.id }
             val jobAgents = agents.filter { it.jobId == job.id }
 
@@ -108,6 +107,7 @@ class DefaultAgentRepository(
     }
 
     private suspend fun replaceSnapshot(entities: SnapshotEntities) {
+        // Single Room transaction: job deleteAll cascades FK-linked agents, requests, and events.
         database.withTransaction {
             jobDao.deleteAll()
             jobDao.upsertAll(entities.jobs)

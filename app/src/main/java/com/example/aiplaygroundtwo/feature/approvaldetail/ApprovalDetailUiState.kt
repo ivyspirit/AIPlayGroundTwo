@@ -11,6 +11,7 @@ sealed interface ApprovalDetailUiState {
         val repoName: String,
         val isSubmitting: Boolean,
         val submitError: String?,
+        val isAlreadyResolved: Boolean,
     ) : ApprovalDetailUiState
 
     data class Error(val message: String) : ApprovalDetailUiState

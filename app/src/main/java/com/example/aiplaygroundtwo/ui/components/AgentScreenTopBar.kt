@@ -1,9 +1,11 @@
 package com.example.aiplaygroundtwo.ui.components
 
+import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.statusBars
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -23,6 +25,7 @@ fun AgentScreenTopBar(
     title: String,
     modifier: Modifier = Modifier,
     onBack: (() -> Unit)? = null,
+    onTitleLongClick: (() -> Unit)? = null,
     actions: @Composable RowScope.() -> Unit = {},
 ) {
     val compact = isLandscape()
@@ -34,6 +37,13 @@ fun AgentScreenTopBar(
         title = {
             Text(
                 text = title,
+                modifier = if (onTitleLongClick != null) {
+                    Modifier.pointerInput(onTitleLongClick) {
+                        detectTapGestures(onLongPress = { onTitleLongClick() })
+                    }
+                } else {
+                    Modifier
+                },
                 style = if (compact) {
                     MaterialTheme.typography.titleMedium
                 } else {
