@@ -66,7 +66,7 @@ fun AgentBottomNav(
     }
 }
 
-@Preview
+
 @Composable
 private fun AgentBottomNavPreview() {
     AIPlayGroundTwoTheme {

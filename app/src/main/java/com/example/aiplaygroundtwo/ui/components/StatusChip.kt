@@ -49,7 +49,7 @@ fun AgentStatusChip(
     )
 }
 
-@Preview
+
 @Composable
 private fun JobStatusChipPreview() {
     AIPlayGroundTwoTheme {
@@ -57,7 +57,7 @@ private fun JobStatusChipPreview() {
     }
 }
 
-@Preview
+
 @Composable
 private fun AgentStatusChipPreview() {
     AIPlayGroundTwoTheme {

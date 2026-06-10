@@ -26,7 +26,7 @@ fun TypeChip(
     )
 }
 
-@Preview
+
 @Composable
 private fun TypeChipPreview() {
     AIPlayGroundTwoTheme {

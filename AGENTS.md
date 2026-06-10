@@ -60,7 +60,7 @@ Reuse shared components in `ui/components/` and `ui/theme/`.
 2. The unit tests listed for the slice in SPEC.md are implemented.
    Tests target server rules, repository behavior, and ViewModel state
    transitions — no Compose UI tests.
-3. Every screen state (loading / content / error / empty) has a `@Preview`.
+3. Every screen state (loading / content / error / empty) has a ``.
 4. Self-review the full diff against SPEC.md and the mock before reporting
    done. List every deviation explicitly. Mock mismatches are must-fix
    unless documented as intentional.
