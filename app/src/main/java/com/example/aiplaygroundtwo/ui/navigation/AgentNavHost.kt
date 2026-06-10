@@ -2,7 +2,6 @@ package com.example.aiplaygroundtwo.ui.navigation
 
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.DisposableEffect
 import androidx.compose.ui.Modifier
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -27,8 +26,6 @@ import com.example.aiplaygroundtwo.feature.requestscenter.RequestsCenterViewMode
 import com.example.aiplaygroundtwo.feature.requestscenter.RequestsCenterViewModelFactory
 import com.example.aiplaygroundtwo.navigation.AppDestinations
 import androidx.compose.runtime.LaunchedEffect
-import androidx.lifecycle.LifecycleEventObserver
-import androidx.lifecycle.compose.LocalLifecycleOwner
 
 @Composable
 fun AgentNavHost(
@@ -47,16 +44,6 @@ fun AgentNavHost(
                 factory = DashboardViewModelFactory(repository, dispatchers),
             )
 
-            val owner = LocalLifecycleOwner.current
-            DisposableEffect(owner) {
-                val obs = LifecycleEventObserver { _, event ->
-                    println("&** dash lifecycle event: $event")
-                }
-                owner.lifecycle.addObserver(obs)
-                onDispose {
-                    owner.lifecycle.removeObserver(obs)
-                }
-            }
             val uiState = viewModel.uiState.collectAsStateWithLifecycle().value
 
             DashboardScreen(

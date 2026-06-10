@@ -221,6 +221,45 @@ text survives; (b) background → `adb shell am kill <pkg>` → relaunch from
 recents — selected option and resolved requests survive; (c) trip
 `failNextCall` → submit fails → error shown, input intact → retry succeeds.
 
+**Slice 8 — Failure injection and error handling.**
+
+Scope:
+- FakeAgentNetworkApi: add
+  enum class FailureMode { NONE, NETWORK_ERROR, SERVER_500, VALIDATION_400, CONFLICT_409 }
+  var failureMode = NONE. On any call: if mode != NONE, return the matching
+  NetworkResult failure and reset to NONE (one-shot).
+- Debug panel: long-press the "Agent Control" title on Dashboard → dialog
+  with one chip per FailureMode.
+- Implement the Error policy table (SPEC §2) in ViewModels. Note:
+  DashboardViewModel already has refreshError — extend it to distinguish
+  "first load, empty data" (full-screen Error w/ Retry) from "refresh with
+  cached data" (keep content, show snackbar w/ Retry).
+- ApprovalDetailViewModel: failed submit shows inline error, preserves typed
+  feedback and selected option, does NOT navigate back (today it only
+  navigates on Success — verify the failure branch surfaces an error rather
+  than silently staying).
+- CONFLICT_409 on submit → call repository.refresh(); detail screen derives
+  "Already resolved" banner from the request's status in Room, hides buttons.
+- Verify the snapshot upsert is one Room withTransaction (it is — confirmed
+  during debugging; add a comment noting the FK-CASCADE-based clear).
+
+Tests:
+- Each FailureMode → matching NetworkResult.
+- refresh() failure with non-empty Room: tables unchanged, Flows don't emit empty.
+- Submit + SERVER_500: request stays PENDING; UI state retains feedback text
+  and selection; navigateBack not triggered.
+- Submit + CONFLICT_409: after triggered refresh, request resolved in Room;
+  detail state is read-only/resolved.
+
+Manual checks:
+1. pm clear → arm NETWORK_ERROR → launch: full-screen error; Retry loads.
+2. Loaded Dashboard → arm NETWORK_ERROR → pull-refresh: content stays,
+   snackbar appears.
+3. Open approval → type feedback → arm SERVER_500 → Approve: inline error,
+   text intact; Retry succeeds and propagates everywhere.
+4. Open pending request → arm CONFLICT_409 → submit: banner, buttons gone,
+   Dashboard + Requests agree.
+
 ## 7. Cut list (in order)
 1. Pull-to-refresh  2. History tab richness (keep one row)
 3. Inspector recent-actions section  4. Activity tab (keep events in History

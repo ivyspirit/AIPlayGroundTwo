@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyListScope
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
@@ -73,57 +74,61 @@ fun JobDetailScreen(
                         .fillMaxSize()
                         .padding(innerPadding),
                 ) {
-                    TabRow(selectedTabIndex = selectedTab) {
-                        JobDetailTab.entries.forEachIndexed { index, tab ->
-                            Tab(
-                                selected = selectedTab == index,
-                                onClick = { selectedTab = index },
-                                text = {
-                                    Text(
-                                        text = tab.label,
-                                        style = if (compact) {
-                                            MaterialTheme.typography.labelLarge
-                                        } else {
-                                            MaterialTheme.typography.titleSmall
-                                        },
-                                    )
-                                },
-                            )
-                        }
-                    }
-                    LazyColumn(
-                        modifier = Modifier
-                            .weight(1f)
-                            .fillMaxWidth(),
-                        contentPadding = PaddingValues(
-                            horizontal = 16.dp,
-                            vertical = if (compact) 6.dp else 8.dp,
-                        ),
-                        verticalArrangement = Arrangement.spacedBy(if (compact) 8.dp else 12.dp),
-                    ) {
-                        item(key = "job-header") {
-                            JobDetailHeader(
-                                repoName = uiState.repoName,
-                                status = uiState.status,
-                                currentStep = uiState.currentStep,
-                                totalSteps = uiState.totalSteps,
-                                startedAtEpochMs = uiState.startedAtEpochMs,
-                                updatedAtEpochMs = uiState.updatedAtEpochMs,
-                                compact = compact,
-                            )
-                        }
-                        when (JobDetailTab.entries[selectedTab]) {
-                            JobDetailTab.Overview -> jobDetailOverviewItems(
-                                pendingRequests = uiState.pendingRequests,
-                                agentCount = uiState.agents.size,
+                    if (compact) {
+                        LazyColumn(
+                            modifier = Modifier
+                                .weight(1f)
+                                .fillMaxWidth(),
+                            contentPadding = PaddingValues(
+                                horizontal = 16.dp,
+                                vertical = 6.dp,
+                            ),
+                            verticalArrangement = Arrangement.spacedBy(8.dp),
+                        ) {
+                            jobDetailScrollableContent(
+                                uiState = uiState,
+                                selectedTab = selectedTab,
+                                onTabSelected = { selectedTab = it },
+                                compact = true,
                                 onReview = onReview,
-                            )
-                            JobDetailTab.Agents -> jobDetailAgentsItems(
-                                agents = uiState.agents,
                                 onAgentClick = onAgentClick,
+                                includeTabsInScroll = true,
                             )
-                            JobDetailTab.Activity -> jobDetailActivityItems(
-                                activityEvents = uiState.activityEvents,
+                        }
+                    } else {
+                        JobDetailHeader(
+                            repoName = uiState.repoName,
+                            status = uiState.status,
+                            currentStep = uiState.currentStep,
+                            totalSteps = uiState.totalSteps,
+                            startedAtEpochMs = uiState.startedAtEpochMs,
+                            updatedAtEpochMs = uiState.updatedAtEpochMs,
+                            compact = false,
+                            modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp),
+                        )
+                        JobDetailTabRow(
+                            selectedTab = selectedTab,
+                            onTabSelected = { selectedTab = it },
+                            compact = false,
+                        )
+                        LazyColumn(
+                            modifier = Modifier
+                                .weight(1f)
+                                .fillMaxWidth(),
+                            contentPadding = PaddingValues(
+                                horizontal = 16.dp,
+                                vertical = 8.dp,
+                            ),
+                            verticalArrangement = Arrangement.spacedBy(12.dp),
+                        ) {
+                            jobDetailScrollableContent(
+                                uiState = uiState,
+                                selectedTab = selectedTab,
+                                onTabSelected = { selectedTab = it },
+                                compact = false,
+                                onReview = onReview,
+                                onAgentClick = onAgentClick,
+                                includeTabsInScroll = false,
                             )
                         }
                     }
@@ -140,5 +145,80 @@ fun JobDetailScreen(
                 )
             }
         }
+    }
+}
+
+@Composable
+private fun JobDetailTabRow(
+    selectedTab: Int,
+    onTabSelected: (Int) -> Unit,
+    compact: Boolean,
+    modifier: Modifier = Modifier,
+) {
+    TabRow(
+        selectedTabIndex = selectedTab,
+        modifier = modifier,
+    ) {
+        JobDetailTab.entries.forEachIndexed { index, tab ->
+            Tab(
+                selected = selectedTab == index,
+                onClick = { onTabSelected(index) },
+                text = {
+                    Text(
+                        text = tab.label,
+                        style = if (compact) {
+                            MaterialTheme.typography.labelLarge
+                        } else {
+                            MaterialTheme.typography.titleSmall
+                        },
+                    )
+                },
+            )
+        }
+    }
+}
+
+private fun LazyListScope.jobDetailScrollableContent(
+    uiState: JobDetailUiState.Content,
+    selectedTab: Int,
+    onTabSelected: (Int) -> Unit,
+    compact: Boolean,
+    onReview: (String) -> Unit,
+    onAgentClick: (String) -> Unit,
+    includeTabsInScroll: Boolean,
+) {
+    if (includeTabsInScroll) {
+        item(key = "job-header") {
+            JobDetailHeader(
+                repoName = uiState.repoName,
+                status = uiState.status,
+                currentStep = uiState.currentStep,
+                totalSteps = uiState.totalSteps,
+                startedAtEpochMs = uiState.startedAtEpochMs,
+                updatedAtEpochMs = uiState.updatedAtEpochMs,
+                compact = compact,
+            )
+        }
+        item(key = "tabs") {
+            JobDetailTabRow(
+                selectedTab = selectedTab,
+                onTabSelected = onTabSelected,
+                compact = compact,
+            )
+        }
+    }
+    when (JobDetailTab.entries[selectedTab]) {
+        JobDetailTab.Overview -> jobDetailOverviewItems(
+            pendingRequests = uiState.pendingRequests,
+            agentCount = uiState.agents.size,
+            onReview = onReview,
+        )
+        JobDetailTab.Agents -> jobDetailAgentsItems(
+            agents = uiState.agents,
+            onAgentClick = onAgentClick,
+        )
+        JobDetailTab.Activity -> jobDetailActivityItems(
+            activityEvents = uiState.activityEvents,
+        )
     }
 }

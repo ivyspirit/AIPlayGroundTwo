@@ -2,9 +2,12 @@ package com.example.aiplaygroundtwo.feature.approvaldetail
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.selection.selectable
@@ -19,6 +22,7 @@ import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
@@ -30,6 +34,8 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.example.aiplaygroundtwo.domain.model.RequestType
 import com.example.aiplaygroundtwo.domain.model.ReviewRequest
@@ -86,6 +92,7 @@ fun ApprovalDetailScreen(
             var selectedOption by rememberSaveable { mutableStateOf<String?>(null) }
             Scaffold(
                 modifier = modifier,
+                contentWindowInsets = WindowInsets(0, 0, 0, 0),
                 topBar = {
                     ApprovalDetailTopBar(title = uiState.request.title, onBack = onBack)
                 },
@@ -327,46 +334,72 @@ private fun ApprovalDetailBottomBar(
     onContinue: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    Row(
-        modifier = modifier
-            .fillMaxWidth()
-            .padding(16.dp),
-        horizontalArrangement = Arrangement.spacedBy(12.dp),
+    Surface(
+        modifier = modifier.fillMaxWidth(),
+        color = MaterialTheme.colorScheme.surface,
+        tonalElevation = 3.dp,
     ) {
-        when (requestType) {
-            RequestType.Approval -> {
-                OutlinedButton(
-                    onClick = onReject,
-                    enabled = canReject,
-                    modifier = Modifier.weight(1f),
-                    colors = ButtonDefaults.outlinedButtonColors(contentColor = AgentRed),
-                ) {
-                    Text("Reject")
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .navigationBarsPadding()
+                .padding(horizontal = 16.dp, vertical = 12.dp),
+            horizontalArrangement = Arrangement.spacedBy(12.dp),
+        ) {
+            when (requestType) {
+                RequestType.Approval -> {
+                    OutlinedButton(
+                        onClick = onReject,
+                        enabled = canReject,
+                        modifier = Modifier.weight(1f),
+                        contentPadding = PaddingValues(horizontal = 12.dp, vertical = 10.dp),
+                        colors = ButtonDefaults.outlinedButtonColors(contentColor = AgentRed),
+                    ) {
+                        ActionButtonLabel(text = "Reject")
+                    }
+                    Button(
+                        onClick = onApprove,
+                        enabled = !isSubmitting,
+                        modifier = Modifier.weight(1f),
+                        contentPadding = PaddingValues(horizontal = 12.dp, vertical = 10.dp),
+                    ) {
+                        ActionButtonLabel(text = "Approve")
+                    }
                 }
-                Button(
-                    onClick = onApprove,
-                    enabled = !isSubmitting,
-                    modifier = Modifier.weight(1f),
-                ) {
-                    Text("Approve")
-                }
-            }
-            RequestType.NeedsInput -> {
-                OutlinedButton(
-                    onClick = onReject,
-                    enabled = canReject,
-                    modifier = Modifier.weight(1f),
-                ) {
-                    Text("Pause / Reject")
-                }
-                Button(
-                    onClick = onContinue,
-                    enabled = canContinue,
-                    modifier = Modifier.weight(1f),
-                ) {
-                    Text("Continue with selection")
+                RequestType.NeedsInput -> {
+                    OutlinedButton(
+                        onClick = onReject,
+                        enabled = canReject,
+                        modifier = Modifier.weight(1f),
+                        contentPadding = PaddingValues(horizontal = 12.dp, vertical = 10.dp),
+                    ) {
+                        ActionButtonLabel(text = "Pause / Reject")
+                    }
+                    Button(
+                        onClick = onContinue,
+                        enabled = canContinue,
+                        modifier = Modifier.weight(1f),
+                        contentPadding = PaddingValues(horizontal = 12.dp, vertical = 10.dp),
+                    ) {
+                        ActionButtonLabel(text = "Continue with selection")
+                    }
                 }
             }
         }
     }
+}
+
+@Composable
+private fun ActionButtonLabel(
+    text: String,
+    modifier: Modifier = Modifier,
+) {
+    Text(
+        text = text,
+        modifier = modifier.fillMaxWidth(),
+        style = MaterialTheme.typography.labelLarge,
+        textAlign = TextAlign.Center,
+        maxLines = 2,
+        overflow = TextOverflow.Ellipsis,
+    )
 }
