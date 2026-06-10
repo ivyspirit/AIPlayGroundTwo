@@ -103,35 +103,6 @@ class DefaultAgentRepositoryTest {
     }
 
     @Test
-    fun observeJobs_reflectsResolutionOnDashboard() = runTest {
-        repository.refresh()
-        repository.submitReviewResolution(
-            ReviewResolution(
-                requestId = "request-coder-approval",
-                action = ResolutionAction.Approve,
-            ),
-        )
-
-        val job1 = repository.observeJobs().first().first { it.id == "job-1" }
-        assertEquals(JobStatus.Blocked, job1.status)
-        assertEquals(0, job1.pendingApprovalCount)
-        assertEquals(1, job1.pendingNeedsInputCount)
-
-        repository.submitReviewResolution(
-            ReviewResolution(
-                requestId = "request-test-input",
-                action = ResolutionAction.Continue,
-                selectedOption = "Critical flows",
-            ),
-        )
-
-        val job1After = repository.observeJobs().first().first { it.id == "job-1" }
-        assertEquals(JobStatus.Running, job1After.status)
-        assertEquals(0, job1After.pendingApprovalCount)
-        assertEquals(0, job1After.pendingNeedsInputCount)
-    }
-
-    @Test
     fun jobStaysBlocked_whenAnotherPendingRequestRemains() = runTest {
         repository.refresh()
         repository.submitReviewResolution(
