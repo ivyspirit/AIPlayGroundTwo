@@ -27,12 +27,8 @@ import com.example.aiplaygroundtwo.feature.requestscenter.RequestsCenterViewMode
 import com.example.aiplaygroundtwo.feature.requestscenter.RequestsCenterViewModelFactory
 import com.example.aiplaygroundtwo.navigation.AppDestinations
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.compose.LocalLifecycleOwner
-import androidx.lifecycle.compose.currentStateAsState
-import com.example.aiplaygroundtwo.feature.dashboard.DashboardUiState
-import kotlinx.coroutines.flow.collect
 
 @Composable
 fun AgentNavHost(
@@ -52,7 +48,6 @@ fun AgentNavHost(
             )
 
             val owner = LocalLifecycleOwner.current
-            println("&****** dash COMPOSED, lifecycle=${owner.lifecycle.currentStateAsState().value}")
             DisposableEffect(owner) {
                 val obs = LifecycleEventObserver { _, event ->
                     println("&** dash lifecycle event: $event")
@@ -60,19 +55,9 @@ fun AgentNavHost(
                 owner.lifecycle.addObserver(obs)
                 onDispose {
                     owner.lifecycle.removeObserver(obs)
-                    println("&** dash LEFT composition")
                 }
             }
             val uiState = viewModel.uiState.collectAsStateWithLifecycle().value
-//            val uiState = viewModel.uiState.collectAsState().value
-            println("&***** in the navigation 47 the UIState ")
-
-            when (uiState) {
-                is DashboardUiState.Content -> {
-                    println("&****** the nav review count ${uiState.pendingRequestCount}")
-                }
-                else -> 0
-            }
 
             DashboardScreen(
                 uiState = uiState,

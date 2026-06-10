@@ -27,13 +27,9 @@ class DashboardViewModel(
         isRefreshing,
         refreshError,
     ) { jobs, refreshing, error ->
-        println("&****** got here 28")
         val pendingRequestCount = jobs.sumOf { job ->
             job.pendingApprovalCount + job.pendingNeedsInputCount
         }
-//        jobs.forEach {
-//            println("&***** the job name ${it.title} pending request ${it.pendingApprovalCount} : ${it.pendingNeedsInputCount} ")
-//        }
 
         when {
             error != null && jobs.isEmpty() -> DashboardUiState.Error(error)
@@ -45,9 +41,7 @@ class DashboardViewModel(
                 isRefreshing = refreshing,
             )
         }
-    }.onStart { println("&***** upstream STARTED") }
-        .onCompletion { println("&***** upstream STOPPED") }
-        .stateIn(
+    }.stateIn(
         scope = viewModelScope,
         started = SharingStarted.WhileSubscribed(1_000),
         initialValue = DashboardUiState.Loading,

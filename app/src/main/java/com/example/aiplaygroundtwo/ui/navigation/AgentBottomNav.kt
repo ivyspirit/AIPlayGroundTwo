@@ -80,7 +80,6 @@ fun AgentBottomNav(
             NavigationBarItem(
                 selected = dashboardSelected,
                 onClick = {
-                    println("&***** click dashboard ")
                     val popped = navController.popBackStack(
                         route = AppDestinations.DASHBOARD,
                         inclusive = false,
@@ -91,10 +90,6 @@ fun AgentBottomNav(
                             launchSingleTop = true
                         }
                     }
-
-                    println("&***** Dashboard bottom clicked, popped=$popped")
-                    println("&***** current destination after pop=${navController.currentDestination?.route}")
-
                 },
                 icon = { Text("⌂") },
                 label = { Text("Dashboard") },
