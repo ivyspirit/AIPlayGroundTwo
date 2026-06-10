@@ -4,4 +4,5 @@ enum class AgentStatus {
     Completed,
     Blocked,
     Running,
+    Idle,
 }

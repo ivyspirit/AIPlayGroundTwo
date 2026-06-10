@@ -1,6 +1,8 @@
 package com.example.aiplaygroundtwo.ui.navigation
 
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.ui.Modifier
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -14,12 +16,19 @@ import com.example.aiplaygroundtwo.di.DispatcherProvider
 import com.example.aiplaygroundtwo.feature.dashboard.DashboardScreen
 import com.example.aiplaygroundtwo.feature.dashboard.DashboardViewModel
 import com.example.aiplaygroundtwo.feature.dashboard.DashboardViewModelFactory
+import com.example.aiplaygroundtwo.feature.approvaldetail.ApprovalDetailScreen
+import com.example.aiplaygroundtwo.feature.approvaldetail.ApprovalDetailViewModel
+import com.example.aiplaygroundtwo.feature.approvaldetail.ApprovalDetailViewModelFactory
 import com.example.aiplaygroundtwo.feature.jobdetail.JobDetailScreen
 import com.example.aiplaygroundtwo.feature.jobdetail.JobDetailViewModel
 import com.example.aiplaygroundtwo.feature.jobdetail.JobDetailViewModelFactory
+import com.example.aiplaygroundtwo.feature.requestscenter.RequestsCenterScreen
+import com.example.aiplaygroundtwo.feature.requestscenter.RequestsCenterViewModel
+import com.example.aiplaygroundtwo.feature.requestscenter.RequestsCenterViewModelFactory
 import com.example.aiplaygroundtwo.navigation.AppDestinations
-import com.example.aiplaygroundtwo.ui.placeholder.ApprovalDetailPlaceholderScreen
-import com.example.aiplaygroundtwo.ui.placeholder.RequestsCenterPlaceholderScreen
+import androidx.compose.runtime.LaunchedEffect
+import androidx.lifecycle.LifecycleEventObserver
+import androidx.lifecycle.compose.LocalLifecycleOwner
 
 @Composable
 fun AgentNavHost(
@@ -37,7 +46,19 @@ fun AgentNavHost(
             val viewModel: DashboardViewModel = viewModel(
                 factory = DashboardViewModelFactory(repository, dispatchers),
             )
+
+            val owner = LocalLifecycleOwner.current
+            DisposableEffect(owner) {
+                val obs = LifecycleEventObserver { _, event ->
+                    println("&** dash lifecycle event: $event")
+                }
+                owner.lifecycle.addObserver(obs)
+                onDispose {
+                    owner.lifecycle.removeObserver(obs)
+                }
+            }
             val uiState = viewModel.uiState.collectAsStateWithLifecycle().value
+
             DashboardScreen(
                 uiState = uiState,
                 onJobClick = { jobId ->
@@ -48,6 +69,7 @@ fun AgentNavHost(
                 },
                 onRefresh = viewModel::refresh,
                 onRetry = viewModel::refresh,
+                modifier = Modifier.fillMaxSize(),
             )
         }
         composable(
@@ -71,19 +93,26 @@ fun AgentNavHost(
                 },
                 onAgentClick = viewModel::onAgentClick,
                 onDismissInspector = viewModel::dismissInspector,
+                modifier = Modifier.fillMaxSize(),
             )
         }
         composable(AppDestinations.REQUESTS_CENTER) {
-            RequestsCenterPlaceholderScreen(
+            val viewModel: RequestsCenterViewModel = viewModel(
+                factory = RequestsCenterViewModelFactory(repository),
+            )
+            val uiState = viewModel.uiState.collectAsStateWithLifecycle().value
+            RequestsCenterScreen(
+                uiState = uiState,
                 onBack = {
                     navController.navigate(AppDestinations.DASHBOARD) {
-                        popUpTo(AppDestinations.DASHBOARD) { inclusive = true }
+                        popUpTo(AppDestinations.DASHBOARD) { inclusive = false }
                         launchSingleTop = true
                     }
                 },
-                onOpenApproval = { requestId ->
+                onReview = { requestId ->
                     navController.navigate(AppDestinations.approvalDetail(requestId))
                 },
+                modifier = Modifier.fillMaxSize(),
             )
         }
         composable(
@@ -93,9 +122,24 @@ fun AgentNavHost(
             ),
         ) { entry ->
             val requestId = entry.arguments?.getString(AppDestinations.REQUEST_ID_ARG).orEmpty()
-            ApprovalDetailPlaceholderScreen(
-                requestId = requestId,
+            val viewModel: ApprovalDetailViewModel = viewModel(
+                factory = ApprovalDetailViewModelFactory(repository, requestId, dispatchers),
+            )
+            val uiState = viewModel.uiState.collectAsStateWithLifecycle().value
+            val shouldNavigateBack = viewModel.shouldNavigateBack.collectAsStateWithLifecycle().value
+            LaunchedEffect(shouldNavigateBack) {
+                if (shouldNavigateBack) {
+                    viewModel.onNavigateBackHandled()
+                    navController.popBackStack()
+                }
+            }
+            ApprovalDetailScreen(
+                uiState = uiState,
                 onBack = { navController.popBackStack() },
+                onApprove = viewModel::approve,
+                onReject = viewModel::reject,
+                onContinue = viewModel::continueWithSelection,
+                modifier = Modifier.fillMaxSize(),
             )
         }
     }

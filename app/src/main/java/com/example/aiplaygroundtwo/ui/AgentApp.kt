@@ -1,5 +1,7 @@
 package com.example.aiplaygroundtwo.ui
 
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
@@ -30,6 +32,7 @@ fun AgentApp(
 
     Scaffold(
         modifier = modifier,
+        contentWindowInsets = WindowInsets(0, 0, 0, 0),
         bottomBar = {
             if (showBottomNav) {
                 AgentBottomNav(
@@ -43,7 +46,9 @@ fun AgentApp(
             navController = navController,
             repository = repository,
             dispatchers = dispatchers,
-            modifier = Modifier.padding(innerPadding),
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(innerPadding),
         )
     }
 }

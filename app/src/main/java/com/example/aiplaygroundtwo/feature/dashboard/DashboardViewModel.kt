@@ -9,6 +9,8 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.onCompletion
+import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -28,6 +30,7 @@ class DashboardViewModel(
         val pendingRequestCount = jobs.sumOf { job ->
             job.pendingApprovalCount + job.pendingNeedsInputCount
         }
+
         when {
             error != null && jobs.isEmpty() -> DashboardUiState.Error(error)
             jobs.isEmpty() && refreshing -> DashboardUiState.Loading
@@ -40,13 +43,13 @@ class DashboardViewModel(
         }
     }.stateIn(
         scope = viewModelScope,
-        started = SharingStarted.WhileSubscribed(5_000),
+        started = SharingStarted.WhileSubscribed(1_000),
         initialValue = DashboardUiState.Loading,
     )
 
-    init {
-        refresh()
-    }
+//    init {
+//        refresh()
+//    }
 
     fun refresh() {
         viewModelScope.launch {

@@ -6,7 +6,6 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -16,6 +15,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.example.aiplaygroundtwo.domain.model.JobSummary
 import com.example.aiplaygroundtwo.ui.components.AgentChip
+import com.example.aiplaygroundtwo.ui.components.AgentProgressBar
 import com.example.aiplaygroundtwo.ui.components.ChipColors
 import com.example.aiplaygroundtwo.ui.components.JobStatusChip
 import com.example.aiplaygroundtwo.ui.theme.AgentBlue
@@ -72,11 +72,9 @@ fun JobCard(
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
             }
-            LinearProgressIndicator(
-                progress = { job.currentStep.toFloat() / job.totalSteps.toFloat() },
-                modifier = Modifier.fillMaxWidth(),
-                color = MaterialTheme.colorScheme.primary,
-                trackColor = MaterialTheme.colorScheme.surface,
+            AgentProgressBar(
+                currentStep = job.currentStep,
+                totalSteps = job.totalSteps,
             )
             if (job.pendingApprovalCount > 0 || job.pendingNeedsInputCount > 0) {
                 PendingRequestBreakdown(

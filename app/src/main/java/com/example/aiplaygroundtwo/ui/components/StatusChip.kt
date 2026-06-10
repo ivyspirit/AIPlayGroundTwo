@@ -10,6 +10,8 @@ import com.example.aiplaygroundtwo.domain.model.JobStatus
 import com.example.aiplaygroundtwo.ui.theme.AIPlayGroundTwoTheme
 import com.example.aiplaygroundtwo.ui.theme.AgentBlue
 import com.example.aiplaygroundtwo.ui.theme.AgentBlueContainer
+import com.example.aiplaygroundtwo.ui.theme.AgentAmber
+import com.example.aiplaygroundtwo.ui.theme.AgentAmberContainer
 import com.example.aiplaygroundtwo.ui.theme.AgentGreen
 import com.example.aiplaygroundtwo.ui.theme.AgentGreenContainer
 import com.example.aiplaygroundtwo.ui.theme.AgentRed
@@ -41,6 +43,7 @@ fun AgentStatusChip(
         AgentStatus.Blocked -> "Blocked" to ChipColors(AgentRedContainer, AgentRed)
         AgentStatus.Running -> "Running" to ChipColors(AgentGreenContainer, AgentGreen)
         AgentStatus.Completed -> "Completed" to ChipColors(AgentGreenContainer, AgentGreen)
+        AgentStatus.Idle -> "Idle" to ChipColors(AgentAmberContainer, AgentAmber)
     }
     AgentChip(
         label = label,

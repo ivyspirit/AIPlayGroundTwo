@@ -37,9 +37,12 @@ class DefaultAgentRepository(
         agentDao.observeAll(),
         reviewRequestDao.observeAllPending(),
     ) { jobs, agents, pending ->
+
         jobs.map { job ->
-            val jobAgents = agents.filter { it.jobId == job.id }
+//            "${pending.joinToString { "${it.title }}: ${it.status}"}"
             val jobPending = pending.filter { it.jobId == job.id }
+            val jobAgents = agents.filter { it.jobId == job.id }
+
             job.toJobSummary(
                 agentCount = jobAgents.size,
                 pendingApprovalCount = jobPending.count { it.type == "APPROVAL" },

@@ -126,6 +126,7 @@ private fun String.toAgentStatus(): AgentStatus = when (this) {
     "COMPLETED" -> AgentStatus.Completed
     "BLOCKED" -> AgentStatus.Blocked
     "RUNNING" -> AgentStatus.Running
+    "IDLE" -> AgentStatus.Idle
     else -> AgentStatus.Running
 }
 
