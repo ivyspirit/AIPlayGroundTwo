@@ -75,6 +75,7 @@ private fun ApprovalDetailScreenApprovalPreview() {
                 repoName = "my-app-backend",
                 isSubmitting = false,
                 submitError = null,
+                isAlreadyResolved = false,
             ),
             onBack = {},
             onApprove = {},
@@ -95,6 +96,28 @@ private fun ApprovalDetailScreenNeedsInputPreview() {
                 repoName = "my-app-backend",
                 isSubmitting = false,
                 submitError = null,
+                isAlreadyResolved = false,
+            ),
+            onBack = {},
+            onApprove = {},
+            onReject = {},
+            onContinue = { _, _ -> },
+        )
+    }
+}
+
+@Preview
+@Composable
+private fun ApprovalDetailScreenAlreadyResolvedPreview() {
+    AIPlayGroundTwoTheme {
+        ApprovalDetailScreen(
+            uiState = ApprovalDetailUiState.Content(
+                request = approvalRequest.copy(status = RequestStatus.Approved),
+                jobTitle = "Migrate auth to OAuth2",
+                repoName = "my-app-backend",
+                isSubmitting = false,
+                submitError = null,
+                isAlreadyResolved = true,
             ),
             onBack = {},
             onApprove = {},
@@ -129,6 +152,7 @@ private fun ApprovalDetailScreenSubmitErrorPreview() {
                 repoName = "my-app-backend",
                 isSubmitting = false,
                 submitError = "Network error",
+                isAlreadyResolved = false,
             ),
             onBack = {},
             onApprove = {},

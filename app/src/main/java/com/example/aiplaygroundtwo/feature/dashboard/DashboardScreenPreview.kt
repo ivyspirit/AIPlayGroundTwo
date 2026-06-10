@@ -16,6 +16,7 @@ private fun DashboardScreenLoadingPreview() {
             onRequestsClick = {},
             onRefresh = {},
             onRetry = {},
+            onDismissSnackbar = {},
         )
     }
 }
@@ -56,6 +57,7 @@ private fun DashboardScreenContentPreview() {
             onRequestsClick = {},
             onRefresh = {},
             onRetry = {},
+            onDismissSnackbar = {},
         )
     }
 }
@@ -70,6 +72,7 @@ private fun DashboardScreenErrorPreview() {
             onRequestsClick = {},
             onRefresh = {},
             onRetry = {},
+            onDismissSnackbar = {},
         )
     }
 }
@@ -84,6 +87,7 @@ private fun DashboardScreenEmptyPreview() {
             onRequestsClick = {},
             onRefresh = {},
             onRetry = {},
+            onDismissSnackbar = {},
         )
     }
 }

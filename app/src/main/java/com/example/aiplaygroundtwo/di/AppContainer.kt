@@ -17,7 +17,9 @@ class AppContainer(context: Context) {
         "agent_control.db",
     ).build()
 
-    val networkApi: AgentNetworkApi = FakeAgentNetworkApi()
+    val fakeNetworkApi: FakeAgentNetworkApi = FakeAgentNetworkApi()
+
+    val networkApi: AgentNetworkApi = fakeNetworkApi
 
     val repository: AgentRepository = DefaultAgentRepository(
         database = database,

@@ -9,6 +9,7 @@ sealed interface DashboardUiState {
         val jobs: List<JobSummary>,
         val pendingRequestCount: Int,
         val isRefreshing: Boolean = false,
+        val snackbarMessage: String? = null,
     ) : DashboardUiState
 
     data class Error(

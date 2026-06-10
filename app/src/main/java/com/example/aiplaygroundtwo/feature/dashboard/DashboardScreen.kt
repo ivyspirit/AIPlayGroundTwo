@@ -10,12 +10,22 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarDuration
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
+import androidx.compose.material3.SnackbarResult
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import com.example.aiplaygroundtwo.data.network.fake.FakeAgentNetworkApi
 import com.example.aiplaygroundtwo.domain.model.JobSummary
 import com.example.aiplaygroundtwo.ui.components.AgentEmptyState
 import com.example.aiplaygroundtwo.ui.components.AgentErrorState
@@ -30,14 +40,50 @@ fun DashboardScreen(
     onRequestsClick: () -> Unit,
     onRefresh: () -> Unit,
     onRetry: () -> Unit,
+    onDismissSnackbar: () -> Unit,
+    onArmFailureMode: ((FakeAgentNetworkApi.FailureMode) -> Unit)? = null,
     modifier: Modifier = Modifier,
 ) {
+    val snackbarHostState = remember { SnackbarHostState() }
+    var showFailureDialog by remember { mutableStateOf(false) }
+
+    LaunchedEffect(uiState) {
+        val message = (uiState as? DashboardUiState.Content)?.snackbarMessage
+        if (message != null) {
+            val result = snackbarHostState.showSnackbar(
+                message = message,
+                actionLabel = "Retry",
+                duration = SnackbarDuration.Long,
+            )
+            onDismissSnackbar()
+            if (result == SnackbarResult.ActionPerformed) {
+                onRetry()
+            }
+        }
+    }
+
+    if (showFailureDialog && onArmFailureMode != null) {
+        FailureModeDebugDialog(
+            onModeSelected = { mode ->
+                onArmFailureMode(mode)
+                showFailureDialog = false
+            },
+            onDismiss = { showFailureDialog = false },
+        )
+    }
+
     Scaffold(
         modifier = modifier,
         contentWindowInsets = WindowInsets(0, 0, 0, 0),
+        snackbarHost = { SnackbarHost(hostState = snackbarHostState) },
         topBar = {
             AgentScreenTopBar(
                 title = "Agent Control",
+                onTitleLongClick = if (onArmFailureMode != null) {
+                    { showFailureDialog = true }
+                } else {
+                    null
+                },
                 actions = {
                     Surface(
                         onClick = onRequestsClick,

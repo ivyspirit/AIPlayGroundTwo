@@ -97,23 +97,25 @@ fun ApprovalDetailScreen(
                     ApprovalDetailTopBar(title = uiState.request.title, onBack = onBack)
                 },
                 bottomBar = {
-                    ApprovalDetailBottomBar(
-                        requestType = uiState.request.type,
-                        canContinue = selectedOption != null && !uiState.isSubmitting,
-                        canReject = when (uiState.request.type) {
-                            RequestType.NeedsInput -> feedback.isNotBlank() && !uiState.isSubmitting
-                            RequestType.Approval -> !uiState.isSubmitting
-                        },
-                        isSubmitting = uiState.isSubmitting,
-                        onReject = { onReject(feedback) },
-                        onApprove = { onApprove(feedback) },
-                        onContinue = {
-                            val option = selectedOption
-                            if (option != null) {
-                                onContinue(option, feedback)
-                            }
-                        },
-                    )
+                    if (!uiState.isAlreadyResolved) {
+                        ApprovalDetailBottomBar(
+                            requestType = uiState.request.type,
+                            canContinue = selectedOption != null && !uiState.isSubmitting,
+                            canReject = when (uiState.request.type) {
+                                RequestType.NeedsInput -> feedback.isNotBlank() && !uiState.isSubmitting
+                                RequestType.Approval -> !uiState.isSubmitting
+                            },
+                            isSubmitting = uiState.isSubmitting,
+                            onReject = { onReject(feedback) },
+                            onApprove = { onApprove(feedback) },
+                            onContinue = {
+                                val option = selectedOption
+                                if (option != null) {
+                                    onContinue(option, feedback)
+                                }
+                            },
+                        )
+                    }
                 },
             ) { innerPadding ->
                 Column(
@@ -124,15 +126,20 @@ fun ApprovalDetailScreen(
                         .padding(16.dp),
                     verticalArrangement = Arrangement.spacedBy(16.dp),
                 ) {
+                    if (uiState.isAlreadyResolved) {
+                        AlreadyResolvedBanner()
+                    }
                     RequestDetailHeader(
                         request = uiState.request,
                         jobTitle = uiState.jobTitle,
                         repoName = uiState.repoName,
                     )
+                    val readOnly = uiState.isAlreadyResolved
                     when (uiState.request.type) {
                         RequestType.Approval -> ApprovalBody(
                             request = uiState.request,
                             feedback = feedback,
+                            readOnly = readOnly,
                             onFeedbackChange = { value ->
                                 if (value.length <= MAX_FEEDBACK_LENGTH) {
                                     feedback = value
@@ -142,6 +149,7 @@ fun ApprovalDetailScreen(
                         RequestType.NeedsInput -> NeedsInputBody(
                             request = uiState.request,
                             selectedOption = selectedOption,
+                            readOnly = readOnly,
                             onOptionSelected = { selectedOption = it },
                             feedback = feedback,
                             onFeedbackChange = { value ->
@@ -161,6 +169,22 @@ fun ApprovalDetailScreen(
                 }
             }
         }
+    }
+}
+
+@Composable
+private fun AlreadyResolvedBanner(modifier: Modifier = Modifier) {
+    Surface(
+        modifier = modifier.fillMaxWidth(),
+        color = MaterialTheme.colorScheme.primaryContainer,
+        shape = MaterialTheme.shapes.medium,
+    ) {
+        Text(
+            text = "Already resolved",
+            modifier = Modifier.padding(horizontal = 16.dp, vertical = 12.dp),
+            style = MaterialTheme.typography.titleSmall,
+            color = MaterialTheme.colorScheme.onPrimaryContainer,
+        )
     }
 }
 
@@ -188,6 +212,7 @@ private fun ApprovalDetailTopBar(
 private fun ApprovalBody(
     request: ReviewRequest,
     feedback: String,
+    readOnly: Boolean,
     onFeedbackChange: (String) -> Unit,
     modifier: Modifier = Modifier,
 ) {
@@ -215,11 +240,13 @@ private fun ApprovalBody(
                 }
             }
         }
-        FeedbackField(
-            label = "Feedback (optional)",
-            value = feedback,
-            onValueChange = onFeedbackChange,
-        )
+        if (!readOnly) {
+            FeedbackField(
+                label = "Feedback (optional)",
+                value = feedback,
+                onValueChange = onFeedbackChange,
+            )
+        }
     }
 }
 
@@ -227,6 +254,7 @@ private fun ApprovalBody(
 private fun NeedsInputBody(
     request: ReviewRequest,
     selectedOption: String?,
+    readOnly: Boolean,
     onOptionSelected: (String) -> Unit,
     feedback: String,
     onFeedbackChange: (String) -> Unit,
@@ -250,17 +278,24 @@ private fun NeedsInputBody(
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .selectable(
-                            selected = selectedOption == option,
-                            onClick = { onOptionSelected(option) },
-                            role = Role.RadioButton,
+                        .then(
+                            if (!readOnly) {
+                                Modifier.selectable(
+                                    selected = selectedOption == option,
+                                    onClick = { onOptionSelected(option) },
+                                    role = Role.RadioButton,
+                                )
+                            } else {
+                                Modifier
+                            },
                         )
                         .padding(vertical = 4.dp),
                     verticalAlignment = Alignment.CenterVertically,
                 ) {
                     RadioButton(
                         selected = selectedOption == option,
-                        onClick = { onOptionSelected(option) },
+                        onClick = { if (!readOnly) onOptionSelected(option) },
+                        enabled = !readOnly,
                     )
                     Text(
                         text = option,
@@ -270,11 +305,13 @@ private fun NeedsInputBody(
                 }
             }
         }
-        FeedbackField(
-            label = "Additional guidance (optional)",
-            value = feedback,
-            onValueChange = onFeedbackChange,
-        )
+        if (!readOnly) {
+            FeedbackField(
+                label = "Additional guidance (optional)",
+                value = feedback,
+                onValueChange = onFeedbackChange,
+            )
+        }
     }
 }
 

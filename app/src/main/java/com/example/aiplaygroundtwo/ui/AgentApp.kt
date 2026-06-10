@@ -9,6 +9,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Modifier
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import com.example.aiplaygroundtwo.data.network.fake.FakeAgentNetworkApi
 import com.example.aiplaygroundtwo.data.repository.AgentRepository
 import com.example.aiplaygroundtwo.di.DispatcherProvider
 import com.example.aiplaygroundtwo.navigation.AppDestinations
@@ -19,6 +20,7 @@ import com.example.aiplaygroundtwo.ui.navigation.AgentNavHost
 fun AgentApp(
     repository: AgentRepository,
     dispatchers: DispatcherProvider,
+    fakeNetworkApi: FakeAgentNetworkApi? = null,
     modifier: Modifier = Modifier,
 ) {
     val navController = rememberNavController()
@@ -46,6 +48,7 @@ fun AgentApp(
             navController = navController,
             repository = repository,
             dispatchers = dispatchers,
+            fakeNetworkApi = fakeNetworkApi,
             modifier = Modifier
                 .fillMaxSize()
                 .padding(innerPadding),

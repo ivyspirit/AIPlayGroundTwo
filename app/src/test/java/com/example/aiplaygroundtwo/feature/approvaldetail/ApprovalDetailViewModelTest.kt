@@ -171,6 +171,38 @@ class ApprovalDetailViewModelTest {
 
         val state = viewModel.uiState.value as ApprovalDetailUiState.Content
         assertEquals("Server error", state.submitError)
+        assertEquals(RequestStatus.Pending, state.request.status)
+        assertFalse(state.isAlreadyResolved)
+        assertFalse(viewModel.shouldNavigateBack.value)
+    }
+
+    @Test
+    fun conflict409_refreshesAndShowsResolvedState() = runTest {
+        val repository = FakeAgentRepository()
+        repository.setJobs(listOf(jobSummary))
+        repository.setRequestDetail("request-coder-approval", approvalRequest)
+        repository.submitResult = NetworkResult.HttpError(409, "Request already resolved")
+        repository.refreshHook = {
+            repository.setRequestDetail(
+                "request-coder-approval",
+                approvalRequest.copy(status = RequestStatus.Approved),
+            )
+        }
+        val viewModel = createViewModel(repository, "request-coder-approval")
+        backgroundScope.launch {
+            viewModel.uiState.collect { }
+            viewModel.shouldNavigateBack.collect { }
+        }
+        advanceUntilIdle()
+
+        viewModel.approve("feedback")
+        advanceUntilIdle()
+        mainDispatcherRule.testDispatcher.scheduler.advanceUntilIdle()
+
+        val state = viewModel.uiState.value as ApprovalDetailUiState.Content
+        assertEquals(RequestStatus.Approved, state.request.status)
+        assertTrue(state.isAlreadyResolved)
+        assertEquals(null, state.submitError)
         assertFalse(viewModel.shouldNavigateBack.value)
     }
 }

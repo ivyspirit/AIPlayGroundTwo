@@ -5,6 +5,7 @@ import androidx.lifecycle.viewModelScope
 import com.example.aiplaygroundtwo.data.network.NetworkResult
 import com.example.aiplaygroundtwo.data.repository.AgentRepository
 import com.example.aiplaygroundtwo.di.DispatcherProvider
+import com.example.aiplaygroundtwo.domain.model.RequestStatus
 import com.example.aiplaygroundtwo.domain.model.ResolutionAction
 import com.example.aiplaygroundtwo.domain.model.ReviewResolution
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -41,6 +42,7 @@ class ApprovalDetailViewModel(
                     repoName = job?.repoName ?: "",
                     isSubmitting = submitting,
                     submitError = error,
+                    isAlreadyResolved = request.status != RequestStatus.Pending,
                 )
             }
         }
@@ -85,7 +87,14 @@ class ApprovalDetailViewModel(
                 )
                 when (val result = repository.submitReviewResolution(resolution)) {
                     is NetworkResult.Success -> navigateBack.value = true
-                    is NetworkResult.HttpError -> submitError.value = result.message
+                    is NetworkResult.HttpError -> {
+                        if (result.code == 409) {
+                            repository.refresh()
+                            submitError.value = null
+                        } else {
+                            submitError.value = result.message
+                        }
+                    }
                     is NetworkResult.NetworkError -> {
                         submitError.value = result.cause.message ?: "Network error"
                     }
