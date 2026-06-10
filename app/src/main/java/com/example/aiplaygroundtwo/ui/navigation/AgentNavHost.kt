@@ -14,12 +14,17 @@ import com.example.aiplaygroundtwo.di.DispatcherProvider
 import com.example.aiplaygroundtwo.feature.dashboard.DashboardScreen
 import com.example.aiplaygroundtwo.feature.dashboard.DashboardViewModel
 import com.example.aiplaygroundtwo.feature.dashboard.DashboardViewModelFactory
+import com.example.aiplaygroundtwo.feature.approvaldetail.ApprovalDetailScreen
+import com.example.aiplaygroundtwo.feature.approvaldetail.ApprovalDetailViewModel
+import com.example.aiplaygroundtwo.feature.approvaldetail.ApprovalDetailViewModelFactory
 import com.example.aiplaygroundtwo.feature.jobdetail.JobDetailScreen
 import com.example.aiplaygroundtwo.feature.jobdetail.JobDetailViewModel
 import com.example.aiplaygroundtwo.feature.jobdetail.JobDetailViewModelFactory
+import com.example.aiplaygroundtwo.feature.requestscenter.RequestsCenterScreen
+import com.example.aiplaygroundtwo.feature.requestscenter.RequestsCenterViewModel
+import com.example.aiplaygroundtwo.feature.requestscenter.RequestsCenterViewModelFactory
 import com.example.aiplaygroundtwo.navigation.AppDestinations
-import com.example.aiplaygroundtwo.ui.placeholder.ApprovalDetailPlaceholderScreen
-import com.example.aiplaygroundtwo.ui.placeholder.RequestsCenterPlaceholderScreen
+import androidx.compose.runtime.LaunchedEffect
 
 @Composable
 fun AgentNavHost(
@@ -74,14 +79,19 @@ fun AgentNavHost(
             )
         }
         composable(AppDestinations.REQUESTS_CENTER) {
-            RequestsCenterPlaceholderScreen(
+            val viewModel: RequestsCenterViewModel = viewModel(
+                factory = RequestsCenterViewModelFactory(repository),
+            )
+            val uiState = viewModel.uiState.collectAsStateWithLifecycle().value
+            RequestsCenterScreen(
+                uiState = uiState,
                 onBack = {
                     navController.navigate(AppDestinations.DASHBOARD) {
-                        popUpTo(AppDestinations.DASHBOARD) { inclusive = true }
+                        popUpTo(AppDestinations.DASHBOARD) { inclusive = false }
                         launchSingleTop = true
                     }
                 },
-                onOpenApproval = { requestId ->
+                onReview = { requestId ->
                     navController.navigate(AppDestinations.approvalDetail(requestId))
                 },
             )
@@ -93,9 +103,23 @@ fun AgentNavHost(
             ),
         ) { entry ->
             val requestId = entry.arguments?.getString(AppDestinations.REQUEST_ID_ARG).orEmpty()
-            ApprovalDetailPlaceholderScreen(
-                requestId = requestId,
+            val viewModel: ApprovalDetailViewModel = viewModel(
+                factory = ApprovalDetailViewModelFactory(repository, requestId, dispatchers),
+            )
+            val uiState = viewModel.uiState.collectAsStateWithLifecycle().value
+            val shouldNavigateBack = viewModel.shouldNavigateBack.collectAsStateWithLifecycle().value
+            LaunchedEffect(shouldNavigateBack) {
+                if (shouldNavigateBack) {
+                    viewModel.onNavigateBackHandled()
+                    navController.popBackStack()
+                }
+            }
+            ApprovalDetailScreen(
+                uiState = uiState,
                 onBack = { navController.popBackStack() },
+                onApprove = viewModel::approve,
+                onReject = viewModel::reject,
+                onContinue = viewModel::continueWithSelection,
             )
         }
     }

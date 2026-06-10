@@ -14,7 +14,13 @@ import kotlinx.coroutines.flow.map
 class FakeAgentRepository : AgentRepository {
     private val jobs = MutableStateFlow<List<JobSummary>>(emptyList())
     private val jobDetails = MutableStateFlow<Map<String, JobDetail>>(emptyMap())
+    private val requestsCenter = MutableStateFlow(
+        RequestsCenter(pendingByJob = emptyList(), history = emptyList()),
+    )
+    private val requestDetails = MutableStateFlow<Map<String, ReviewRequest>>(emptyMap())
     var refreshResult: NetworkResult<Unit> = NetworkResult.Success(Unit)
+    var submitResult: NetworkResult<Unit> = NetworkResult.Success(Unit)
+    var lastSubmittedResolution: ReviewResolution? = null
 
     fun setJobs(value: List<JobSummary>) {
         jobs.value = value
@@ -24,22 +30,32 @@ class FakeAgentRepository : AgentRepository {
         jobDetails.value = jobDetails.value + (jobId to detail)
     }
 
+    fun setRequestsCenter(value: RequestsCenter) {
+        requestsCenter.value = value
+    }
+
+    fun setRequestDetail(requestId: String, request: ReviewRequest) {
+        requestDetails.value = requestDetails.value + (requestId to request)
+    }
+
     override fun observeJobs(): Flow<List<JobSummary>> = jobs
 
     override fun observeJobDetail(jobId: String): Flow<JobDetail?> =
         jobDetails.map { it[jobId] }
 
-    override fun observeRequestsCenter(): Flow<RequestsCenter> =
-        MutableStateFlow(RequestsCenter(pendingByJob = emptyList(), history = emptyList()))
+    override fun observeRequestsCenter(): Flow<RequestsCenter> = requestsCenter
 
     override fun observeRequestDetail(requestId: String): Flow<ReviewRequest?> =
-        MutableStateFlow(null)
+        requestDetails.map { it[requestId] }
 
     override suspend fun refresh(): NetworkResult<Unit> = refreshResult
 
     override suspend fun submitReviewResolution(
         resolution: ReviewResolution,
-    ): NetworkResult<Unit> = NetworkResult.Success(Unit)
+    ): NetworkResult<Unit> {
+        lastSubmittedResolution = resolution
+        return submitResult
+    }
 
     override suspend fun seedIfEmpty() = Unit
 }
