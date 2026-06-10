@@ -9,19 +9,25 @@ import com.example.aiplaygroundtwo.domain.model.ReviewRequest
 import com.example.aiplaygroundtwo.domain.model.ReviewResolution
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.map
 
 class FakeAgentRepository : AgentRepository {
     private val jobs = MutableStateFlow<List<JobSummary>>(emptyList())
+    private val jobDetails = MutableStateFlow<Map<String, JobDetail>>(emptyMap())
     var refreshResult: NetworkResult<Unit> = NetworkResult.Success(Unit)
 
     fun setJobs(value: List<JobSummary>) {
         jobs.value = value
     }
 
+    fun setJobDetail(jobId: String, detail: JobDetail) {
+        jobDetails.value = jobDetails.value + (jobId to detail)
+    }
+
     override fun observeJobs(): Flow<List<JobSummary>> = jobs
 
     override fun observeJobDetail(jobId: String): Flow<JobDetail?> =
-        MutableStateFlow(null)
+        jobDetails.map { it[jobId] }
 
     override fun observeRequestsCenter(): Flow<RequestsCenter> =
         MutableStateFlow(RequestsCenter(pendingByJob = emptyList(), history = emptyList()))

@@ -6,18 +6,6 @@ import com.example.aiplaygroundtwo.ui.theme.AIPlayGroundTwoTheme
 
 @Preview
 @Composable
-private fun JobDetailPlaceholderScreenPreview() {
-    AIPlayGroundTwoTheme {
-        JobDetailPlaceholderScreen(
-            jobId = "job-1",
-            onBack = {},
-            onOpenApproval = {},
-        )
-    }
-}
-
-@Preview
-@Composable
 private fun RequestsCenterPlaceholderScreenPreview() {
     AIPlayGroundTwoTheme {
         RequestsCenterPlaceholderScreen(

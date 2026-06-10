@@ -14,9 +14,11 @@ import com.example.aiplaygroundtwo.di.DispatcherProvider
 import com.example.aiplaygroundtwo.feature.dashboard.DashboardScreen
 import com.example.aiplaygroundtwo.feature.dashboard.DashboardViewModel
 import com.example.aiplaygroundtwo.feature.dashboard.DashboardViewModelFactory
+import com.example.aiplaygroundtwo.feature.jobdetail.JobDetailScreen
+import com.example.aiplaygroundtwo.feature.jobdetail.JobDetailViewModel
+import com.example.aiplaygroundtwo.feature.jobdetail.JobDetailViewModelFactory
 import com.example.aiplaygroundtwo.navigation.AppDestinations
 import com.example.aiplaygroundtwo.ui.placeholder.ApprovalDetailPlaceholderScreen
-import com.example.aiplaygroundtwo.ui.placeholder.JobDetailPlaceholderScreen
 import com.example.aiplaygroundtwo.ui.placeholder.RequestsCenterPlaceholderScreen
 
 @Composable
@@ -55,12 +57,20 @@ fun AgentNavHost(
             ),
         ) { entry ->
             val jobId = entry.arguments?.getString(AppDestinations.JOB_ID_ARG).orEmpty()
-            JobDetailPlaceholderScreen(
-                jobId = jobId,
+            val viewModel: JobDetailViewModel = viewModel(
+                factory = JobDetailViewModelFactory(repository, jobId),
+            )
+            val uiState = viewModel.uiState.collectAsStateWithLifecycle().value
+            val inspectorState = viewModel.inspectorState.collectAsStateWithLifecycle().value
+            JobDetailScreen(
+                uiState = uiState,
+                inspectorState = inspectorState,
                 onBack = { navController.popBackStack() },
-                onOpenApproval = { requestId ->
+                onReview = { requestId ->
                     navController.navigate(AppDestinations.approvalDetail(requestId))
                 },
+                onAgentClick = viewModel::onAgentClick,
+                onDismissInspector = viewModel::dismissInspector,
             )
         }
         composable(AppDestinations.REQUESTS_CENTER) {

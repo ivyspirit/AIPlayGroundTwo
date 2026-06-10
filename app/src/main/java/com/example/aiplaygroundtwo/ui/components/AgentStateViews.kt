@@ -84,7 +84,6 @@ fun AgentEmptyState(
     }
 }
 
-
 @Composable
 private fun AgentLoadingStatePreview() {
     AIPlayGroundTwoTheme {
@@ -92,14 +91,12 @@ private fun AgentLoadingStatePreview() {
     }
 }
 
-
 @Composable
 private fun AgentErrorStatePreview() {
     AIPlayGroundTwoTheme {
         AgentErrorState(message = "Could not load jobs.", onRetry = {})
     }
 }
-
 
 @Composable
 private fun AgentEmptyStatePreview() {
