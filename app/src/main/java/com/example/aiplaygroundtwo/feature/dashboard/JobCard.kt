@@ -13,14 +13,11 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.example.aiplaygroundtwo.domain.model.JobStatus
 import com.example.aiplaygroundtwo.domain.model.JobSummary
 import com.example.aiplaygroundtwo.ui.components.AgentChip
 import com.example.aiplaygroundtwo.ui.components.ChipColors
 import com.example.aiplaygroundtwo.ui.components.JobStatusChip
-import com.example.aiplaygroundtwo.ui.theme.AIPlayGroundTwoTheme
 import com.example.aiplaygroundtwo.ui.theme.AgentBlue
 import com.example.aiplaygroundtwo.ui.theme.AgentBlueContainer
 import com.example.aiplaygroundtwo.ui.theme.AgentRed
@@ -120,47 +117,5 @@ private fun PendingRequestBreakdown(
                 )
             }
         }
-    }
-}
-
-@Preview
-@Composable
-private fun JobCardBlockedPreview() {
-    AIPlayGroundTwoTheme {
-        JobCard(
-            job = JobSummary(
-                id = "job-1",
-                title = "Migrate auth to OAuth2",
-                repoName = "my-app-backend",
-                status = JobStatus.Blocked,
-                currentStep = 3,
-                totalSteps = 5,
-                agentCount = 3,
-                pendingApprovalCount = 1,
-                pendingNeedsInputCount = 1,
-            ),
-            onClick = {},
-        )
-    }
-}
-
-@Preview
-@Composable
-private fun JobCardRunningPreview() {
-    AIPlayGroundTwoTheme {
-        JobCard(
-            job = JobSummary(
-                id = "job-2",
-                title = "Fix checkout bug",
-                repoName = "shop-app",
-                status = JobStatus.Running,
-                currentStep = 2,
-                totalSteps = 4,
-                agentCount = 1,
-                pendingApprovalCount = 0,
-                pendingNeedsInputCount = 0,
-            ),
-            onClick = {},
-        )
     }
 }

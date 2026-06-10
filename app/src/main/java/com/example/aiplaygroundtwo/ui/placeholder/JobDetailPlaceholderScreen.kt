@@ -16,9 +16,7 @@ import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.example.aiplaygroundtwo.ui.theme.AIPlayGroundTwoTheme
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -69,17 +67,5 @@ fun JobDetailPlaceholderScreen(
                 Text("Open approval detail")
             }
         }
-    }
-}
-
-@Preview
-@Composable
-private fun JobDetailPlaceholderScreenPreview() {
-    AIPlayGroundTwoTheme {
-        JobDetailPlaceholderScreen(
-            jobId = "job-1",
-            onBack = {},
-            onOpenApproval = {},
-        )
     }
 }
