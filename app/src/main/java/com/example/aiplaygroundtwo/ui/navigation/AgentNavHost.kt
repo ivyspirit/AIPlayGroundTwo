@@ -2,20 +2,28 @@ package com.example.aiplaygroundtwo.ui.navigation
 
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
+import com.example.aiplaygroundtwo.data.repository.AgentRepository
+import com.example.aiplaygroundtwo.di.DispatcherProvider
+import com.example.aiplaygroundtwo.feature.dashboard.DashboardScreen
+import com.example.aiplaygroundtwo.feature.dashboard.DashboardViewModel
+import com.example.aiplaygroundtwo.feature.dashboard.DashboardViewModelFactory
 import com.example.aiplaygroundtwo.navigation.AppDestinations
 import com.example.aiplaygroundtwo.ui.placeholder.ApprovalDetailPlaceholderScreen
-import com.example.aiplaygroundtwo.ui.placeholder.DashboardPlaceholderScreen
 import com.example.aiplaygroundtwo.ui.placeholder.JobDetailPlaceholderScreen
 import com.example.aiplaygroundtwo.ui.placeholder.RequestsCenterPlaceholderScreen
 
 @Composable
 fun AgentNavHost(
     navController: NavHostController,
+    repository: AgentRepository,
+    dispatchers: DispatcherProvider,
     modifier: Modifier = Modifier,
 ) {
     NavHost(
@@ -24,10 +32,20 @@ fun AgentNavHost(
         modifier = modifier,
     ) {
         composable(AppDestinations.DASHBOARD) {
-            DashboardPlaceholderScreen(
-                onOpenJob = { jobId ->
+            val viewModel: DashboardViewModel = viewModel(
+                factory = DashboardViewModelFactory(repository, dispatchers),
+            )
+            val uiState = viewModel.uiState.collectAsStateWithLifecycle().value
+            DashboardScreen(
+                uiState = uiState,
+                onJobClick = { jobId ->
                     navController.navigate(AppDestinations.jobDetail(jobId))
                 },
+                onRequestsClick = {
+                    navController.navigate(AppDestinations.REQUESTS_CENTER)
+                },
+                onRefresh = viewModel::refresh,
+                onRetry = viewModel::refresh,
             )
         }
         composable(

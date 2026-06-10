@@ -84,7 +84,7 @@ fun AgentEmptyState(
     }
 }
 
-@Preview(showBackground = true)
+
 @Composable
 private fun AgentLoadingStatePreview() {
     AIPlayGroundTwoTheme {
@@ -92,7 +92,7 @@ private fun AgentLoadingStatePreview() {
     }
 }
 
-@Preview(showBackground = true)
+
 @Composable
 private fun AgentErrorStatePreview() {
     AIPlayGroundTwoTheme {
@@ -100,7 +100,7 @@ private fun AgentErrorStatePreview() {
     }
 }
 
-@Preview(showBackground = true)
+
 @Composable
 private fun AgentEmptyStatePreview() {
     AIPlayGroundTwoTheme {

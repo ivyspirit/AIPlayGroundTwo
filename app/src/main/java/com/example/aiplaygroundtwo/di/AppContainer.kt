@@ -9,7 +9,7 @@ import com.example.aiplaygroundtwo.data.repository.AgentRepository
 import com.example.aiplaygroundtwo.data.repository.DefaultAgentRepository
 
 class AppContainer(context: Context) {
-    private val dispatchers: DispatcherProvider = DefaultDispatcherProvider()
+    val dispatchers: DispatcherProvider = DefaultDispatcherProvider()
 
     val database: AgentDatabase = Room.databaseBuilder(
         context,

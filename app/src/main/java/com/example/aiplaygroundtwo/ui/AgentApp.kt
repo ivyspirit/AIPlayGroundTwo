@@ -8,6 +8,7 @@ import androidx.compose.ui.Modifier
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.example.aiplaygroundtwo.data.repository.AgentRepository
+import com.example.aiplaygroundtwo.di.DispatcherProvider
 import com.example.aiplaygroundtwo.navigation.AppDestinations
 import com.example.aiplaygroundtwo.ui.navigation.AgentBottomNav
 import com.example.aiplaygroundtwo.ui.navigation.AgentNavHost
@@ -15,6 +16,7 @@ import com.example.aiplaygroundtwo.ui.navigation.AgentNavHost
 @Composable
 fun AgentApp(
     repository: AgentRepository,
+    dispatchers: DispatcherProvider,
     modifier: Modifier = Modifier,
 ) {
     val navController = rememberNavController()
@@ -39,6 +41,8 @@ fun AgentApp(
     ) { innerPadding ->
         AgentNavHost(
             navController = navController,
+            repository = repository,
+            dispatchers = dispatchers,
             modifier = Modifier.padding(innerPadding),
         )
     }

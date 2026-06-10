@@ -18,6 +18,7 @@ class MainActivity : ComponentActivity() {
             AIPlayGroundTwoTheme {
                 AgentApp(
                     repository = appContainer.repository,
+                    dispatchers = appContainer.dispatchers,
                     modifier = Modifier.fillMaxSize(),
                 )
             }
