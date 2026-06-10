@@ -22,6 +22,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
+import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.compose.rememberNavController
 import com.example.aiplaygroundtwo.navigation.AppDestinations
 import com.example.aiplaygroundtwo.ui.theme.AIPlayGroundTwoTheme
@@ -56,7 +57,8 @@ fun AgentBottomNav(
                         popUpTo(AppDestinations.DASHBOARD) { inclusive = false }
                         launchSingleTop = true
                     }
-                },
+
+                             },
             )
             CompactNavItem(
                 label = "Requests",
@@ -78,12 +80,21 @@ fun AgentBottomNav(
             NavigationBarItem(
                 selected = dashboardSelected,
                 onClick = {
-                    navController.navigate(AppDestinations.DASHBOARD) {
-                        popUpTo(AppDestinations.DASHBOARD) {
-                            inclusive = false
+                    println("&***** click dashboard ")
+                    val popped = navController.popBackStack(
+                        route = AppDestinations.DASHBOARD,
+                        inclusive = false,
+                    )
+
+                    if (!popped) {
+                        navController.navigate(AppDestinations.DASHBOARD) {
+                            launchSingleTop = true
                         }
-                        launchSingleTop = true
                     }
+
+                    println("&***** Dashboard bottom clicked, popped=$popped")
+                    println("&***** current destination after pop=${navController.currentDestination?.route}")
+
                 },
                 icon = { Text("⌂") },
                 label = { Text("Dashboard") },
@@ -96,6 +107,7 @@ fun AgentBottomNav(
             NavigationBarItem(
                 selected = requestsSelected,
                 onClick = {
+
                     navController.navigate(AppDestinations.REQUESTS_CENTER) {
                         popUpTo(AppDestinations.DASHBOARD) {
                             inclusive = false
