@@ -91,16 +91,19 @@ fun RequestsCenterScreen(
                             )
                         }
                     }
+                    val tabModifier = Modifier
+                        .weight(1f)
+                        .fillMaxWidth()
                     when (RequestsCenterTab.entries[selectedTab]) {
                         RequestsCenterTab.Pending -> PendingTabContent(
                             pendingByJob = uiState.pendingByJob,
                             historyPreview = uiState.historyPreview,
                             onReview = onReview,
-                            modifier = Modifier.fillMaxSize(),
+                            modifier = tabModifier,
                         )
                         RequestsCenterTab.History -> HistoryTabContent(
                             history = uiState.history,
-                            modifier = Modifier.fillMaxSize(),
+                            modifier = tabModifier,
                         )
                     }
                 }

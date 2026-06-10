@@ -1,5 +1,6 @@
 package com.example.aiplaygroundtwo.ui.navigation
 
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -53,6 +54,7 @@ fun AgentNavHost(
                 },
                 onRefresh = viewModel::refresh,
                 onRetry = viewModel::refresh,
+                modifier = Modifier.fillMaxSize(),
             )
         }
         composable(
@@ -76,6 +78,7 @@ fun AgentNavHost(
                 },
                 onAgentClick = viewModel::onAgentClick,
                 onDismissInspector = viewModel::dismissInspector,
+                modifier = Modifier.fillMaxSize(),
             )
         }
         composable(AppDestinations.REQUESTS_CENTER) {
@@ -94,6 +97,7 @@ fun AgentNavHost(
                 onReview = { requestId ->
                     navController.navigate(AppDestinations.approvalDetail(requestId))
                 },
+                modifier = Modifier.fillMaxSize(),
             )
         }
         composable(
@@ -120,6 +124,7 @@ fun AgentNavHost(
                 onApprove = viewModel::approve,
                 onReject = viewModel::reject,
                 onContinue = viewModel::continueWithSelection,
+                modifier = Modifier.fillMaxSize(),
             )
         }
     }
