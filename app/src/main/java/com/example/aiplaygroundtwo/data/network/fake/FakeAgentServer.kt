@@ -125,7 +125,7 @@ class FakeAgentServer {
         feedback = feedback,
       ),
     )
-    reviseAgentPlan(
+    pauseAgent(
       agentId = request.agentId,
       summary = "Paused after input rejected; awaiting new guidance",
     )
@@ -163,6 +163,18 @@ class FakeAgentServer {
       val agent = agents[index]
       agents[index] = agent.copy(
         status = "RUNNING",
+        currentSummary = summary,
+        pendingRequestId = null,
+      )
+    }
+  }
+
+  private fun pauseAgent(agentId: String, summary: String) {
+    val index = agents.indexOfFirst { it.id == agentId }
+    if (index >= 0) {
+      val agent = agents[index]
+      agents[index] = agent.copy(
+        status = "IDLE",
         currentSummary = summary,
         pendingRequestId = null,
       )

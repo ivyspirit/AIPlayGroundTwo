@@ -93,6 +93,24 @@ class FakeAgentServerTest {
     }
 
     @Test
+    fun rejectNeedsInput_pausesAgentAsIdle() {
+        val result = server.resolve(
+            ReviewResolutionDto(
+                requestId = "request-test-input",
+                action = "REJECT",
+                feedback = "Need more context before choosing scope",
+            ),
+        )
+        assertTrue(result is FakeAgentServer.ResolveResult.Success)
+
+        val snapshot = server.buildSnapshot()
+        val testAgent = snapshot.agents.first { it.id == "agent-test" }
+
+        assertEquals("IDLE", testAgent.status)
+        assertTrue(testAgent.currentSummary.contains("Paused after input rejected"))
+    }
+
+    @Test
     fun blockedDerivation_jobBlockedIffPendingRequestsRemain() {
         val initial = server.buildSnapshot()
         assertEquals("BLOCKED", initial.jobs.first { it.id == "job-1" }.status)

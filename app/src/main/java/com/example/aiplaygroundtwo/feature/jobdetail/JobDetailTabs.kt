@@ -3,6 +3,7 @@ package com.example.aiplaygroundtwo.feature.jobdetail
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -31,22 +32,27 @@ internal fun JobDetailOverviewTab(
     onReview: (String) -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    Column(
-        modifier = modifier.padding(16.dp),
+    LazyColumn(
+        modifier = modifier.fillMaxWidth(),
+        contentPadding = PaddingValues(16.dp),
         verticalArrangement = Arrangement.spacedBy(12.dp),
     ) {
-        Text(
-            text = "Review requests (${pendingRequests.size})",
-            style = MaterialTheme.typography.titleMedium,
-        )
-        pendingRequests.forEach { request ->
+        item(key = "overview-header") {
+            Text(
+                text = "Review requests (${pendingRequests.size})",
+                style = MaterialTheme.typography.titleMedium,
+            )
+        }
+        items(pendingRequests, key = { it.id }) { request ->
             PendingRequestCard(request = request, onReview = { onReview(request.id) })
         }
-        Text(
-            text = "$agentCount agents on this job · ${pendingRequests.size} pending requests",
-            style = MaterialTheme.typography.bodySmall,
-            color = MaterialTheme.colorScheme.onSurfaceVariant,
-        )
+        item(key = "overview-footer") {
+            Text(
+                text = "$agentCount agents on this job · ${pendingRequests.size} pending requests",
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+            )
+        }
     }
 }
 

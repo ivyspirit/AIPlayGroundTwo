@@ -93,6 +93,10 @@ fun ApprovalDetailScreen(
                     ApprovalDetailBottomBar(
                         requestType = uiState.request.type,
                         canContinue = selectedOption != null && !uiState.isSubmitting,
+                        canReject = when (uiState.request.type) {
+                            RequestType.NeedsInput -> feedback.isNotBlank() && !uiState.isSubmitting
+                            RequestType.Approval -> !uiState.isSubmitting
+                        },
                         isSubmitting = uiState.isSubmitting,
                         onReject = { onReject(feedback) },
                         onApprove = { onApprove(feedback) },
@@ -316,6 +320,7 @@ private fun FeedbackField(
 private fun ApprovalDetailBottomBar(
     requestType: RequestType,
     canContinue: Boolean,
+    canReject: Boolean,
     isSubmitting: Boolean,
     onReject: () -> Unit,
     onApprove: () -> Unit,
@@ -332,7 +337,7 @@ private fun ApprovalDetailBottomBar(
             RequestType.Approval -> {
                 OutlinedButton(
                     onClick = onReject,
-                    enabled = !isSubmitting,
+                    enabled = canReject,
                     modifier = Modifier.weight(1f),
                     colors = ButtonDefaults.outlinedButtonColors(contentColor = AgentRed),
                 ) {
@@ -349,7 +354,7 @@ private fun ApprovalDetailBottomBar(
             RequestType.NeedsInput -> {
                 OutlinedButton(
                     onClick = onReject,
-                    enabled = !isSubmitting,
+                    enabled = canReject,
                     modifier = Modifier.weight(1f),
                 ) {
                     Text("Pause / Reject")
