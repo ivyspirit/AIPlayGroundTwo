@@ -2,6 +2,7 @@ package com.example.aiplaygroundtwo.feature.jobdetail
 
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -86,21 +87,24 @@ fun JobDetailScreen(
                             )
                         }
                     }
+                    val tabModifier = Modifier
+                        .weight(1f)
+                        .fillMaxWidth()
                     when (JobDetailTab.entries[selectedTab]) {
                         JobDetailTab.Overview -> JobDetailOverviewTab(
                             pendingRequests = uiState.pendingRequests,
                             agentCount = uiState.agents.size,
                             onReview = onReview,
-                            modifier = Modifier.fillMaxSize(),
+                            modifier = tabModifier,
                         )
                         JobDetailTab.Agents -> JobDetailAgentsTab(
                             agents = uiState.agents,
                             onAgentClick = onAgentClick,
-                            modifier = Modifier.fillMaxSize(),
+                            modifier = tabModifier,
                         )
                         JobDetailTab.Activity -> JobDetailActivityTab(
                             activityEvents = uiState.activityEvents,
-                            modifier = Modifier.fillMaxSize(),
+                            modifier = tabModifier,
                         )
                     }
                 }
