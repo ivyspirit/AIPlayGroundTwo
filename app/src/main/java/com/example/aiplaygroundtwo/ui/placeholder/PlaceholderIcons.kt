@@ -7,7 +7,7 @@ import androidx.compose.ui.graphics.vector.path
 import androidx.compose.ui.unit.dp
 
 // Minimal back arrow — avoids material-icons-extended dependency.
-internal val BackIcon: ImageVector = ImageVector.Builder(
+val BackIcon: ImageVector = ImageVector.Builder(
     name = "Back",
     defaultWidth = 24.dp,
     defaultHeight = 24.dp,
