@@ -4,6 +4,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -11,16 +12,12 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Tab
 import androidx.compose.material3.TabRow
 import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBar
-import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
@@ -33,10 +30,11 @@ import com.example.aiplaygroundtwo.domain.model.PendingJobGroup
 import com.example.aiplaygroundtwo.domain.model.ReviewRequest
 import com.example.aiplaygroundtwo.ui.components.AgentEmptyState
 import com.example.aiplaygroundtwo.ui.components.AgentLoadingState
+import com.example.aiplaygroundtwo.ui.components.AgentScreenTopBar
 import com.example.aiplaygroundtwo.ui.components.OutcomeChip
 import com.example.aiplaygroundtwo.ui.components.RiskChip
 import com.example.aiplaygroundtwo.ui.components.TypeChip
-import com.example.aiplaygroundtwo.ui.placeholder.BackIcon
+import com.example.aiplaygroundtwo.ui.util.isLandscape
 
 private enum class RequestsCenterTab(val label: String) {
     Pending("Pending"),
@@ -55,8 +53,9 @@ fun RequestsCenterScreen(
         RequestsCenterUiState.Loading -> {
             Scaffold(
                 modifier = modifier,
+                contentWindowInsets = WindowInsets(0, 0, 0, 0),
                 topBar = {
-                    RequestsCenterTopBar(pendingCount = 0, onBack = onBack)
+                    AgentScreenTopBar(title = "Requests (0)", onBack = onBack)
                 },
             ) { innerPadding ->
                 AgentLoadingState(
@@ -68,11 +67,13 @@ fun RequestsCenterScreen(
         }
         is RequestsCenterUiState.Content -> {
             var selectedTab by rememberSaveable { mutableIntStateOf(0) }
+            val compact = isLandscape()
             Scaffold(
                 modifier = modifier,
+                contentWindowInsets = WindowInsets(0, 0, 0, 0),
                 topBar = {
-                    RequestsCenterTopBar(
-                        pendingCount = uiState.pendingCount,
+                    AgentScreenTopBar(
+                        title = "Requests (${uiState.pendingCount})",
                         onBack = onBack,
                     )
                 },
@@ -87,7 +88,16 @@ fun RequestsCenterScreen(
                             Tab(
                                 selected = selectedTab == index,
                                 onClick = { selectedTab = index },
-                                text = { Text(tab.label) },
+                                text = {
+                                    Text(
+                                        text = tab.label,
+                                        style = if (compact) {
+                                            MaterialTheme.typography.labelLarge
+                                        } else {
+                                            MaterialTheme.typography.titleSmall
+                                        },
+                                    )
+                                },
                             )
                         }
                     }
@@ -110,26 +120,6 @@ fun RequestsCenterScreen(
             }
         }
     }
-}
-
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-private fun RequestsCenterTopBar(
-    pendingCount: Int,
-    onBack: () -> Unit,
-) {
-    TopAppBar(
-        title = { Text("Requests ($pendingCount)") },
-        navigationIcon = {
-            IconButton(onClick = onBack) {
-                Icon(imageVector = BackIcon, contentDescription = "Back")
-            }
-        },
-        colors = TopAppBarDefaults.topAppBarColors(
-            containerColor = MaterialTheme.colorScheme.surface,
-            titleContentColor = MaterialTheme.colorScheme.onSurface,
-        ),
-    )
 }
 
 @Composable

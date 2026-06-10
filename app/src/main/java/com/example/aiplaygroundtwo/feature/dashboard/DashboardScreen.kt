@@ -2,6 +2,7 @@ package com.example.aiplaygroundtwo.feature.dashboard
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
@@ -11,8 +12,6 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBar
-import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
@@ -21,6 +20,7 @@ import com.example.aiplaygroundtwo.domain.model.JobSummary
 import com.example.aiplaygroundtwo.ui.components.AgentEmptyState
 import com.example.aiplaygroundtwo.ui.components.AgentErrorState
 import com.example.aiplaygroundtwo.ui.components.AgentLoadingState
+import com.example.aiplaygroundtwo.ui.components.AgentScreenTopBar
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -34,13 +34,29 @@ fun DashboardScreen(
 ) {
     Scaffold(
         modifier = modifier,
+        contentWindowInsets = WindowInsets(0, 0, 0, 0),
         topBar = {
-            DashboardTopBar(
-                pendingRequestCount = when (uiState) {
-                    is DashboardUiState.Content -> uiState.pendingRequestCount
-                    else -> 0
+            AgentScreenTopBar(
+                title = "Agent Control",
+                actions = {
+                    Surface(
+                        onClick = onRequestsClick,
+                        shape = MaterialTheme.shapes.large,
+                        color = MaterialTheme.colorScheme.primaryContainer,
+                    ) {
+                        Text(
+                            text = "Requests (${
+                                when (uiState) {
+                                    is DashboardUiState.Content -> uiState.pendingRequestCount
+                                    else -> 0
+                                }
+                            })",
+                            modifier = Modifier.padding(horizontal = 12.dp, vertical = 6.dp),
+                            style = MaterialTheme.typography.labelLarge,
+                            color = MaterialTheme.colorScheme.onPrimaryContainer,
+                        )
+                    }
                 },
-                onRequestsClick = onRequestsClick,
             )
         },
     ) { innerPadding ->
@@ -77,35 +93,6 @@ fun DashboardScreen(
             }
         }
     }
-}
-
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-internal fun DashboardTopBar(
-    pendingRequestCount: Int,
-    onRequestsClick: () -> Unit,
-) {
-    TopAppBar(
-        title = { Text("Agent Control") },
-        actions = {
-            Surface(
-                onClick = onRequestsClick,
-                shape = MaterialTheme.shapes.large,
-                color = MaterialTheme.colorScheme.primaryContainer,
-            ) {
-                Text(
-                    text = "Requests ($pendingRequestCount)",
-                    modifier = Modifier.padding(horizontal = 12.dp, vertical = 6.dp),
-                    style = MaterialTheme.typography.labelLarge,
-                    color = MaterialTheme.colorScheme.onPrimaryContainer,
-                )
-            }
-        },
-        colors = TopAppBarDefaults.topAppBarColors(
-            containerColor = MaterialTheme.colorScheme.surface,
-            titleContentColor = MaterialTheme.colorScheme.onSurface,
-        ),
-    )
 }
 
 @Composable

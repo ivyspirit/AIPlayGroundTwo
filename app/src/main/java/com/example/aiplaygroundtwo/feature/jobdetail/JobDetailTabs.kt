@@ -3,12 +3,11 @@ package com.example.aiplaygroundtwo.feature.jobdetail
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyListScope
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
@@ -25,33 +24,62 @@ import com.example.aiplaygroundtwo.ui.components.RiskChip
 import com.example.aiplaygroundtwo.ui.components.TypeChip
 import com.example.aiplaygroundtwo.ui.util.formatTime
 
-@Composable
-internal fun JobDetailOverviewTab(
+internal fun LazyListScope.jobDetailOverviewItems(
     pendingRequests: List<ReviewRequest>,
     agentCount: Int,
     onReview: (String) -> Unit,
-    modifier: Modifier = Modifier,
 ) {
-    LazyColumn(
-        modifier = modifier,
-        contentPadding = PaddingValues(16.dp),
-        verticalArrangement = Arrangement.spacedBy(12.dp),
-    ) {
-        item(key = "overview-header") {
+    item(key = "overview-header") {
+        Text(
+            text = "Review requests (${pendingRequests.size})",
+            style = MaterialTheme.typography.titleMedium,
+        )
+    }
+    items(pendingRequests, key = { it.id }) { request ->
+        PendingRequestCard(request = request, onReview = { onReview(request.id) })
+    }
+    item(key = "overview-footer") {
+        Text(
+            text = "$agentCount agents on this job · ${pendingRequests.size} pending requests",
+            style = MaterialTheme.typography.bodySmall,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+        )
+    }
+}
+
+internal fun LazyListScope.jobDetailAgentsItems(
+    agents: List<Agent>,
+    onAgentClick: (String) -> Unit,
+) {
+    items(agents, key = { it.id }) { agent ->
+        AgentRow(agent = agent, onClick = { onAgentClick(agent.id) })
+    }
+}
+
+internal fun LazyListScope.jobDetailActivityItems(
+    activityEvents: List<com.example.aiplaygroundtwo.domain.model.ActivityEvent>,
+) {
+    items(activityEvents, key = { it.id }) { event ->
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.spacedBy(12.dp),
+        ) {
             Text(
-                text = "Review requests (${pendingRequests.size})",
-                style = MaterialTheme.typography.titleMedium,
+                text = "●",
+                color = MaterialTheme.colorScheme.primary,
+                modifier = Modifier.size(24.dp),
             )
-        }
-        items(pendingRequests, key = { it.id }) { request ->
-            PendingRequestCard(request = request, onReview = { onReview(request.id) })
-        }
-        item(key = "overview-footer") {
-            Text(
-                text = "$agentCount agents on this job · ${pendingRequests.size} pending requests",
-                style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-            )
+            Column {
+                Text(
+                    text = formatTime(event.occurredAtEpochMs),
+                    style = MaterialTheme.typography.labelSmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
+                Text(
+                    text = event.message,
+                    style = MaterialTheme.typography.bodyMedium,
+                )
+            }
         }
     }
 }
@@ -101,23 +129,6 @@ private fun PendingRequestCard(
 }
 
 @Composable
-internal fun JobDetailAgentsTab(
-    agents: List<Agent>,
-    onAgentClick: (String) -> Unit,
-    modifier: Modifier = Modifier,
-) {
-    LazyColumn(
-        modifier = modifier,
-        verticalArrangement = Arrangement.spacedBy(8.dp),
-        contentPadding = androidx.compose.foundation.layout.PaddingValues(16.dp),
-    ) {
-        items(agents, key = { it.id }) { agent ->
-            AgentRow(agent = agent, onClick = { onAgentClick(agent.id) })
-        }
-    }
-}
-
-@Composable
 private fun AgentRow(
     agent: Agent,
     onClick: () -> Unit,
@@ -157,42 +168,6 @@ private fun AgentRow(
                 style = MaterialTheme.typography.titleLarge,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
             )
-        }
-    }
-}
-
-@Composable
-internal fun JobDetailActivityTab(
-    activityEvents: List<com.example.aiplaygroundtwo.domain.model.ActivityEvent>,
-    modifier: Modifier = Modifier,
-) {
-    LazyColumn(
-        modifier = modifier,
-        contentPadding = androidx.compose.foundation.layout.PaddingValues(16.dp),
-        verticalArrangement = Arrangement.spacedBy(16.dp),
-    ) {
-        items(activityEvents, key = { it.id }) { event ->
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(12.dp),
-            ) {
-                Text(
-                    text = "●",
-                    color = MaterialTheme.colorScheme.primary,
-                    modifier = Modifier.size(24.dp),
-                )
-                Column {
-                    Text(
-                        text = formatTime(event.occurredAtEpochMs),
-                        style = MaterialTheme.typography.labelSmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    )
-                    Text(
-                        text = event.message,
-                        style = MaterialTheme.typography.bodyMedium,
-                    )
-                }
-            }
         }
     }
 }
